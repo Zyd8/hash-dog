@@ -8,13 +8,8 @@ public enum HashType
     CRC64
 }
 
-public enum TransferMode
-{
-    copy,
-    cut
-}
 
-public enum HashTransferResult
+public enum HashCompareResult
 {
     match,
     mismatch
