@@ -4,6 +4,5 @@ obj/
 *.manifest
 .vscode/launch.json
 testmodel/test.txt
-testmodel/testfolder/charles.txt
-testmodel/testfolder/hello.txt
-testmodel/testfolder/name.txt
+testmodel/testfolder/
+testmodel/hashdog.db
