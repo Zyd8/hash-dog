@@ -6,8 +6,7 @@ namespace testmodel
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hellooooo");
-            Hash.Say();
+            Service service = new Service();   
         }
     }
 }

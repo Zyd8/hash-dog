@@ -2,3 +2,5 @@ bin/
 obj/
 *.csproj
 *.manifest
+.vscode/launch.json
+testmodel/test.txt
