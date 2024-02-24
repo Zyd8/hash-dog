@@ -1,3 +1,5 @@
+namespace HashDog;
+
 public enum HashType
 {
     MD5,
