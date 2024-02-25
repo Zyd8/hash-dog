@@ -11,6 +11,7 @@ public enum HashType
 
 public enum HashCompareResult
 {
+    firstRun,
     match,
-    mismatch
+    mismatch,
 }
