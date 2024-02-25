@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace HashDog;
 public class Service
@@ -18,7 +19,8 @@ public class Service
         if (!db.DoesTableExist())
         {
             db.CreateHashDog();
-            Queue<string> queue = new Queue<string>();
+
+            Queue<string> queue = new Queue<string>();   
 
             if (source.IsFile)
             {
@@ -43,7 +45,7 @@ public class Service
                 db.InsertData(path, Hash.GetFileHash(path, HashType.MD5));
             }
 
-            db.FirstRunArchiveCopy();
+            db.FirstRunArchiveCopy(); // Make this atomic 
 
             Console.WriteLine(queue.Count);
         }
@@ -51,9 +53,31 @@ public class Service
         else
         {
             Console.WriteLine("Table already exists");
-            db.UpdateData();
+            
+            
+            Queue<int> queue = new Queue<int>();   
+
+            foreach(int id in db.GetHashDogTableId())
+            {
+                queue.Enqueue(id);
+            }
+
+            HashType hashType = db.GetTableHashType();
+
+            while (queue.Count > 0)
+            {
+                int id = queue.Dequeue();
+                int archiveId = db.SubsequentRunArchiveCopyBefore(id);
+                db.UpdateData(id, Hash.GetFileHash(db.GetHashDogTableFilepath(id), hashType));
+                db.SubsequentRunArchiveCopyAfter(id, archiveId);
+            }
+
+            //db.GenerateArchiveComparisonResults();
+            // check if a certain file is first run, if so, archive it directly and make it as first run
+            // Rename better
+            // Do refactorings
         }
 
-        
+        db.Dispose();
     }
 }

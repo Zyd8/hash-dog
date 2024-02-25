@@ -80,7 +80,7 @@ namespace HashDog
                 INSERT INTO {TableName}_metadata (hashtype, table_created)
                 VALUES (@hashtype, @table_created);
             ";
-            command.Parameters.AddWithValue("@hashtype", hashType);
+            command.Parameters.AddWithValue("@hashtype", Parser.ParseHashTypeToString(hashType));
             command.Parameters.AddWithValue("@table_created", DateTime.Now);
             command.ExecuteNonQuery();
         }
@@ -120,21 +120,139 @@ namespace HashDog
                     archiveHashValueTimestampAfter.Parameters.AddWithValue("@hash_value_after", hashValueAfter);
                     archiveHashValueTimestampAfter.Parameters.AddWithValue("@timestamp_after", timestampAfter);
                     archiveHashValueTimestampAfter.Parameters.AddWithValue($"@{TableName}_id", id);
-                    archiveHashValueTimestampAfter.Parameters.AddWithValue("@result", "First Run");
+                    archiveHashValueTimestampAfter.Parameters.AddWithValue("@result", Parser.ParseHashCompareResultToString(HashCompareResult.firstRun));
                     archiveHashValueTimestampAfter.ExecuteNonQuery();
                 }
             }
         }
 
-        public void UpdateData()
+        public int SubsequentRunArchiveCopyBefore(int id)
         {
-            Console.WriteLine("Updating data... table row has existing filePath");
+            string query = $@"SELECT id, hash_value, timestamp FROM {TableName} WHERE id=@id";
+            var command = new SqliteCommand(query, Connection);
+            command.Parameters.AddWithValue("@id", id);
+
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    int hashDogId = reader.GetInt32(0);
+                    string hashValueBefore = reader.GetString(1);
+                    DateTime timestampBefore = reader.GetDateTime(2);
+
+                    var archiveHashValueTimestampBefore = Connection.CreateCommand();
+                    archiveHashValueTimestampBefore.CommandText = $@"
+                        INSERT INTO {TableName}_archive (hash_value_before, timestamp_before, {TableName}_id)
+                        VALUES (@hash_value_before, @timestamp_before, @{TableName}_id);
+                    ";
+                    archiveHashValueTimestampBefore.Parameters.AddWithValue("@hash_value_before", hashValueBefore);
+                    archiveHashValueTimestampBefore.Parameters.AddWithValue("@timestamp_before", timestampBefore);
+                    archiveHashValueTimestampBefore.Parameters.AddWithValue($"@{TableName}_id", hashDogId);
+                    archiveHashValueTimestampBefore.ExecuteNonQuery();
+
+                    var lastRowIdCommand = Connection.CreateCommand();
+                    lastRowIdCommand.CommandText = "SELECT LAST_INSERT_ROWID()";
+                    return Convert.ToInt32(lastRowIdCommand.ExecuteScalar());
+                }
+            }
+            throw new Exception();
         }
 
+        public void SubsequentRunArchiveCopyAfter(int mainId, int archiveId)
+        {
+            string query = $@"SELECT hash_value, timestamp FROM {TableName} WHERE id=@mainId";
+            var commandSelect = new SqliteCommand(query, Connection);
+            commandSelect.Parameters.AddWithValue("@mainId", mainId);
+
+            using (var reader = commandSelect.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    string hashValue = reader.GetString(0);
+                    DateTime timestamp = reader.GetDateTime(1);
+
+                    query = $@"
+                        UPDATE {TableName}_archive
+                        SET hash_value_after = @hashValueAfter, timestamp_after = @timestampAfter
+                        WHERE id = @archiveId AND {TableName}_id = @mainId
+                    ";
+
+                    var commandUpdate = new SqliteCommand(query, Connection);
+                    commandUpdate.Parameters.AddWithValue("@archiveId", archiveId);
+                    commandUpdate.Parameters.AddWithValue("@mainId", mainId);
+                    commandUpdate.Parameters.AddWithValue("@hashValueAfter", hashValue);
+                    commandUpdate.Parameters.AddWithValue("@timestampAfter", timestamp);
+
+                    commandUpdate.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public void UpdateData(int id, string hashValue)
+        {
+            Console.WriteLine("Updating data... table row has existing hashValue");
+
+            var command = Connection.CreateCommand();
+            command.CommandText = $@"
+                UPDATE {TableName}
+                SET hash_value = @hashValue, timestamp = @timestamp
+                WHERE id = @id;
+            ";
+            command.Parameters.AddWithValue("@hashValue", hashValue);
+            command.Parameters.AddWithValue("@timestamp", DateTime.Now);
+            command.Parameters.AddWithValue("@id", id);
+            command.ExecuteNonQuery();
+        }
 
         public void Dispose()
         {
             Connection.Dispose();
         }
+
+        public HashType GetTableHashType()
+        {
+            string query = $@"SELECT * FROM {TableName}_metadata";
+            var command = new SqliteCommand(query, Connection);
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    return Parser.ParseStringToHashType(reader.GetString(1));
+                }
+            }
+            throw new Exception();
+        }
+
+        public List<int> GetHashDogTableId()
+        {
+            List<int> ids = new List<int>();
+            string query = $@"SELECT * FROM {TableName}";
+            var command = new SqliteCommand(query, Connection);
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    ids.Add(reader.GetInt32(0));
+                }
+            }
+            return ids;
+        }
+
+        public string GetHashDogTableFilepath(int id)
+        {
+            string query = $"SELECT filepath FROM {TableName} WHERE id=@id";
+            var command = new SqliteCommand(query, Connection);
+            command.Parameters.AddWithValue("@id", id);
+
+            using (var reader = command.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    return reader.GetString(0); 
+                }
+            }
+            throw new Exception();
+        }
+
     }
 }
