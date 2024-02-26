@@ -182,10 +182,60 @@ namespace HashDog
                     commandUpdate.Parameters.AddWithValue("@mainId", mainId);
                     commandUpdate.Parameters.AddWithValue("@hashValueAfter", hashValue);
                     commandUpdate.Parameters.AddWithValue("@timestampAfter", timestamp);
-
                     commandUpdate.ExecuteNonQuery();
                 }
             }
+        }
+        
+        public void HandleArchiveComparisonResult(int archiveId)
+        {
+            string query = $@"
+                SELECT hash_value_before, hash_value_after FROM {TableName}_archive
+                WHERE id=@id            
+                ;";
+            var commandSelect = new SqliteCommand(query, Connection);
+            commandSelect.Parameters.AddWithValue("@id", archiveId);
+
+            using (var reader = commandSelect.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    string? hashValueBefore = reader.IsDBNull(0) ? null : reader.GetString(0);
+                    string hashValueAfter = reader.GetString(1);
+
+                    if (string.IsNullOrEmpty(hashValueBefore))
+                    {
+                        UpdateArchiveComparisonResult(archiveId, HashCompareResult.firstRun);
+                    }
+                    else if (string.Equals(hashValueBefore, hashValueAfter))
+                    {
+                        UpdateArchiveComparisonResult(archiveId, HashCompareResult.match);
+                    }
+                    else if (!string.Equals(hashValueBefore, hashValueAfter))
+                    {
+                        UpdateArchiveComparisonResult(archiveId, HashCompareResult.mismatch);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException();
+                    }
+                }
+            }
+        }
+
+        private void UpdateArchiveComparisonResult(int archiveId, HashCompareResult hashCompareResult)
+        {
+            Console.WriteLine(archiveId);
+            Console.WriteLine(Parser.ParseHashCompareResultToString(hashCompareResult));
+            string query = $@"
+                UPDATE {TableName}_archive
+                SET result = @result
+                WHERE id=@id            
+                ;";
+            var commandUpdate = new SqliteCommand(query, Connection);
+            commandUpdate.Parameters.AddWithValue("@id", archiveId);
+            commandUpdate.Parameters.AddWithValue("@result", Parser.ParseHashCompareResultToString(hashCompareResult));
+            commandUpdate.ExecuteNonQuery();
         }
 
         public void UpdateData(int id, string hashValue)

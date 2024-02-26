@@ -45,7 +45,7 @@ public class Service
                 db.InsertData(path, Hash.GetFileHash(path, HashType.MD5));
             }
 
-            db.FirstRunArchiveCopy(); // Make this atomic 
+            db.FirstRunArchiveCopy(); // Make this atomic put in queue while loop
 
             Console.WriteLine(queue.Count);
         }
@@ -70,9 +70,10 @@ public class Service
                 int archiveId = db.SubsequentRunArchiveCopyBefore(id);
                 db.UpdateData(id, Hash.GetFileHash(db.GetHashDogTableFilepath(id), hashType));
                 db.SubsequentRunArchiveCopyAfter(id, archiveId);
+                db.HandleArchiveComparisonResult(archiveId);
             }
-
-            //db.GenerateArchiveComparisonResults();
+            
+            
             // check if a certain file is first run, if so, archive it directly and make it as first run
             // Rename better
             // Do refactorings
