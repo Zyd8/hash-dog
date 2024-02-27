@@ -100,15 +100,18 @@ namespace HashDog
             command.ExecuteNonQuery();
         }
 
-        public void FirstRunArchiveCopy()
+        public void FirstRunArchiveCopy(int id)
         {
-            string query = $@"SELECT * FROM {TableName}";
+            string query = $@"
+                SELECT * FROM {TableName}
+                WHERE id=@id
+            ";
             var command = new SqliteCommand(query, Connection);
+            command.Parameters.AddWithValue("@id", id);
             using (var reader = command.ExecuteReader())
             {
-                while (reader.Read())
+                if (reader.Read())
                 {
-                    int id = reader.GetInt32(0);
                     string hashValueAfter = reader.GetString(2);
                     DateTime timestampAfter = reader.GetDateTime(3);
 
