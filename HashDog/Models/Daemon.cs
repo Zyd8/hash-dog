@@ -3,12 +3,12 @@ using System.Threading;
 
 namespace HashDog;
 
-public class Watchdog
+public class Daemon
 {
     public Timer timer;
     public TimeSpan duration;
 
-    public Watchdog(TimeSpan duration, Timer timer)
+    public Daemon(TimeSpan duration, Timer timer)
     {
         this.duration = duration;
         this.timer = timer;
