@@ -11,16 +11,19 @@ public class Service
     public Service()
     {
         source = new(GetSourcePath());
-        db = new Database(Path.GetFileNameWithoutExtension(source.Path));
+        db = new Database(GetSourcePath());
        
         HandleRun();
         TimeSpan duration = TimeSpan.FromSeconds(10);
         Timer timer = new Timer(HandleRun!, null, duration, duration);
-        Watchdog watchDog = new(duration, timer);
+        Daemon daemon = new(duration, timer);
 
         Console.ReadKey();
-        watchDog.Stop();
+        daemon.Stop();
         Console.WriteLine("Watchdog stopped.");
+        // The Watchdog class is a Daemon not watchdog
+        // Add a lock table where it puts the filepath of the currently occupied table to prevent two instances running the same directory
+
     }
 
     private void HandleRun()
@@ -78,7 +81,7 @@ public class Service
             db.InsertData(path, Hash.GetFileHash(path, HashType.MD5));
         }
 
-        foreach (int id in db.GetHashDogTableId())
+        foreach (int id in db.GetHashDogTableIds())
         {
             db.FirstRunArchiveCopy(id);
         }
@@ -86,9 +89,11 @@ public class Service
 
     private void SubsequentRun()
     {
+        CheckFirstRun();
+
         Queue<int> queue = new Queue<int>();   
 
-        foreach(int id in db.GetHashDogTableId())
+        foreach(int id in db.GetHashDogTableIds())
         {
             queue.Enqueue(id);
         }
@@ -108,5 +113,33 @@ public class Service
     private static string GetSourcePath()
     {
         return Path.Combine(Environment.CurrentDirectory, "testfolder");
+    }
+
+    private void CheckFirstRun()
+    {
+        Queue<string> queue = new Queue<string>();  
+
+        if (source.IsFile && !db.IsFilePathExistInTable(source.Path))
+        {
+            queue.Enqueue(source.Path);
+        }
+        else if (!source.IsFile)
+        {
+            List<string> filePaths = FileUtils.TraverseDirectories(source.Path);
+            foreach (string filePath in filePaths)
+            {
+                if (!db.IsFilePathExistInTable(filePath))
+                {
+                    queue.Enqueue(filePath);
+                }
+            }
+        }
+
+        while (queue.Count > 0)
+        {
+            string path = queue.Dequeue();
+            db.InsertData(path, Hash.GetFileHash(path, db.GetTableHashType()));
+            db.FirstRunArchiveCopyByPath(path);
+        }
     }
 }

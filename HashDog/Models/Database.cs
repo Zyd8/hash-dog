@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Data.Common;
 using Microsoft.Data.Sqlite;
@@ -9,13 +10,55 @@ namespace HashDog
     {
         public SqliteConnection Connection; 
         public string TableName;
+        public string TablePath;
 
-        public Database(string tableName)
+        public Database(string tablePath)
         {
-            TableName = tableName;
+            TablePath = tablePath;
+            TableName = Path.GetFileNameWithoutExtension(TablePath);
             Connection = new SqliteConnection("Data Source=hashdog.db");
+
             Connection.Open();
+
+            //CheckLockTable();
         }
+
+        // private void CreateLockTable()
+        // {
+        //     var command = Connection.CreateCommand();
+        //     command.CommandText =
+        //     $@"
+        //         CREATE TABLE IF NOT EXISTS locked_dog (
+        //             id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+        //             filepath TEXT,
+        //         );";
+        //     command.ExecuteNonQuery();
+        // }
+
+        // private bool CheckLockTable()
+        // {
+
+        // }
+
+        // private bool DoesLockTableExist()
+        // {
+
+        // }
+
+        // private string GetLockTablePaths()
+        // {
+
+        // }
+
+        // private string InsertLockTablePath()
+        // {
+
+        // }
+
+        // private string RemoveLockTablePath()
+        // {
+
+        // }
 
         public bool IsFilePathExistInTable(string filePath)
         {
@@ -112,6 +155,36 @@ namespace HashDog
             {
                 if (reader.Read())
                 {
+                    string hashValueAfter = reader.GetString(2);
+                    DateTime timestampAfter = reader.GetDateTime(3);
+
+                    var archiveHashValueTimestampAfter = Connection.CreateCommand();
+                    archiveHashValueTimestampAfter.CommandText = $@"
+                        INSERT INTO {TableName}_archive (hash_value_after, timestamp_after, {TableName}_id, result)
+                        VALUES (@hash_value_after, @timestamp_after, @{TableName}_id, @result);
+                    ";
+                    archiveHashValueTimestampAfter.Parameters.AddWithValue("@hash_value_after", hashValueAfter);
+                    archiveHashValueTimestampAfter.Parameters.AddWithValue("@timestamp_after", timestampAfter);
+                    archiveHashValueTimestampAfter.Parameters.AddWithValue($"@{TableName}_id", id);
+                    archiveHashValueTimestampAfter.Parameters.AddWithValue("@result", Parser.ParseHashCompareResultToString(HashCompareResult.firstRun));
+                    archiveHashValueTimestampAfter.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public void FirstRunArchiveCopyByPath(string path)
+        {
+            string query = $@"
+                SELECT * FROM {TableName}
+                WHERE filepath=@filepath
+            ";
+            var command = new SqliteCommand(query, Connection);
+            command.Parameters.AddWithValue("@filepath", path);
+            using (var reader = command.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    int id = reader.GetInt32(0);
                     string hashValueAfter = reader.GetString(2);
                     DateTime timestampAfter = reader.GetDateTime(3);
 
@@ -276,7 +349,7 @@ namespace HashDog
             throw new Exception();
         }
 
-        public List<int> GetHashDogTableId()
+        public List<int> GetHashDogTableIds()
         {
             List<int> ids = new List<int>();
             string query = $@"SELECT * FROM {TableName}";
