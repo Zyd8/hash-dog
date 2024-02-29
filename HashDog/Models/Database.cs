@@ -128,7 +128,7 @@ namespace HashDog
             command.ExecuteNonQuery();
         }
 
-        public void InsertData(string filePath, string hashValue)
+        public int InsertData(string filePath, string hashValue)
         {
             Console.WriteLine("Inserting data... table row has no filePath yet");
 
@@ -141,6 +141,9 @@ namespace HashDog
             command.Parameters.AddWithValue("@hashValue", hashValue);
             command.Parameters.AddWithValue("@timestamp", DateTime.Now);
             command.ExecuteNonQuery();
+
+            command.CommandText = "SELECT last_insert_rowid()";
+            return Convert.ToInt32(command.ExecuteScalar());
         }
 
         public void FirstRunArchiveCopy(int id)
@@ -155,19 +158,19 @@ namespace HashDog
             {
                 if (reader.Read())
                 {
-                    string hashValueAfter = reader.GetString(2);
-                    DateTime timestampAfter = reader.GetDateTime(3);
+                    string hashValueBefore = reader.GetString(2);
+                    DateTime timestampBefore = reader.GetDateTime(3);
 
-                    var archiveHashValueTimestampAfter = Connection.CreateCommand();
-                    archiveHashValueTimestampAfter.CommandText = $@"
-                        INSERT INTO {TableName}_archive (hash_value_after, timestamp_after, {TableName}_id, result)
-                        VALUES (@hash_value_after, @timestamp_after, @{TableName}_id, @result);
+                    var archiveHashValueTimestampBefore = Connection.CreateCommand();
+                    archiveHashValueTimestampBefore.CommandText = $@"
+                        INSERT INTO {TableName}_archive (hash_value_before, timestamp_before, {TableName}_id, result)
+                        VALUES (@hash_value_before, @timestamp_before, @{TableName}_id, @result);
                     ";
-                    archiveHashValueTimestampAfter.Parameters.AddWithValue("@hash_value_after", hashValueAfter);
-                    archiveHashValueTimestampAfter.Parameters.AddWithValue("@timestamp_after", timestampAfter);
-                    archiveHashValueTimestampAfter.Parameters.AddWithValue($"@{TableName}_id", id);
-                    archiveHashValueTimestampAfter.Parameters.AddWithValue("@result", Parser.ParseHashCompareResultToString(HashCompareResult.firstRun));
-                    archiveHashValueTimestampAfter.ExecuteNonQuery();
+                    archiveHashValueTimestampBefore.Parameters.AddWithValue("@hash_value_before", hashValueBefore);
+                    archiveHashValueTimestampBefore.Parameters.AddWithValue("@timestamp_before", timestampBefore);
+                    archiveHashValueTimestampBefore.Parameters.AddWithValue($"@{TableName}_id", id);
+                    archiveHashValueTimestampBefore.Parameters.AddWithValue("@result", Parser.ParseHashCompareResultToString(HashCompareResult.firstRun));
+                    archiveHashValueTimestampBefore.ExecuteNonQuery();
                 }
             }
         }
@@ -185,22 +188,23 @@ namespace HashDog
                 if (reader.Read())
                 {
                     int id = reader.GetInt32(0);
-                    string hashValueAfter = reader.GetString(2);
-                    DateTime timestampAfter = reader.GetDateTime(3);
+                    string hashValueBefore = reader.GetString(2);
+                    DateTime timestampBefore = reader.GetDateTime(3);
 
-                    var archiveHashValueTimestampAfter = Connection.CreateCommand();
-                    archiveHashValueTimestampAfter.CommandText = $@"
-                        INSERT INTO {TableName}_archive (hash_value_after, timestamp_after, {TableName}_id, result)
-                        VALUES (@hash_value_after, @timestamp_after, @{TableName}_id, @result);
+                    var archiveHashValueTimestampBefore = Connection.CreateCommand();
+                    archiveHashValueTimestampBefore.CommandText = $@"
+                        INSERT INTO {TableName}_archive (hash_value_before, timestamp_before, {TableName}_id, result)
+                        VALUES (@hash_value_before, @timestamp_before, @{TableName}_id, @result);
                     ";
-                    archiveHashValueTimestampAfter.Parameters.AddWithValue("@hash_value_after", hashValueAfter);
-                    archiveHashValueTimestampAfter.Parameters.AddWithValue("@timestamp_after", timestampAfter);
-                    archiveHashValueTimestampAfter.Parameters.AddWithValue($"@{TableName}_id", id);
-                    archiveHashValueTimestampAfter.Parameters.AddWithValue("@result", Parser.ParseHashCompareResultToString(HashCompareResult.firstRun));
-                    archiveHashValueTimestampAfter.ExecuteNonQuery();
+                    archiveHashValueTimestampBefore.Parameters.AddWithValue("@hash_value_before", hashValueBefore);
+                    archiveHashValueTimestampBefore.Parameters.AddWithValue("@timestamp_before", timestampBefore);
+                    archiveHashValueTimestampBefore.Parameters.AddWithValue($"@{TableName}_id", id);
+                    archiveHashValueTimestampBefore.Parameters.AddWithValue("@result", Parser.ParseHashCompareResultToString(HashCompareResult.firstRun));
+                    archiveHashValueTimestampBefore.ExecuteNonQuery();
                 }
             }
         }
+
 
         public int SubsequentRunArchiveCopyBefore(int id)
         {
@@ -276,24 +280,23 @@ namespace HashDog
             {
                 if (reader.Read())
                 {
-                    string? hashValueBefore = reader.IsDBNull(0) ? null : reader.GetString(0);
-                    string hashValueAfter = reader.GetString(1);
-
-                    if (string.IsNullOrEmpty(hashValueBefore))
+                    if (reader.IsDBNull(1))
                     {
                         UpdateArchiveComparisonResult(archiveId, HashCompareResult.firstRun);
                     }
-                    else if (string.Equals(hashValueBefore, hashValueAfter))
-                    {
-                        UpdateArchiveComparisonResult(archiveId, HashCompareResult.match);
-                    }
-                    else if (!string.Equals(hashValueBefore, hashValueAfter))
-                    {
-                        UpdateArchiveComparisonResult(archiveId, HashCompareResult.mismatch);
-                    }
                     else
                     {
-                        throw new InvalidOperationException();
+                        string hashValueBefore = reader.GetString(0);
+                        string hashValueAfter = reader.GetString(1);
+
+                        if (string.Equals(hashValueBefore, hashValueAfter))
+                        {
+                            UpdateArchiveComparisonResult(archiveId, HashCompareResult.match);
+                        }
+                        else
+                        {
+                            UpdateArchiveComparisonResult(archiveId, HashCompareResult.mismatch);
+                        }
                     }
                 }
             }
@@ -379,6 +382,5 @@ namespace HashDog
             }
             throw new Exception();
         }
-
     }
 }

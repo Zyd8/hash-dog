@@ -14,16 +14,17 @@ public class Service
         db = new Database(GetSourcePath());
        
         HandleRun();
-        TimeSpan duration = TimeSpan.FromSeconds(10);
-        Timer timer = new Timer(HandleRun!, null, duration, duration);
-        Daemon daemon = new(duration, timer);
 
-        Console.ReadKey();
-        daemon.Stop();
-        Console.WriteLine("Watchdog stopped.");
-        // The Watchdog class is a Daemon not watchdog
-        // Add a lock table where it puts the filepath of the currently occupied table to prevent two instances running the same directory
+        // TimeSpan duration = TimeSpan.FromSeconds(10);
+        // Timer timer = new Timer(HandleRun!, null, duration, duration);
+        // Daemon daemon = new(duration, timer);
 
+        // Console.ReadKey();
+        // daemon.Stop();
+        // Console.WriteLine("Daemon stopped.");
+
+        // Make insertdata and updatedata return the id of the data that is processed
+        // Check the condition where a filepath suddenly dissapears then suddenly returns to the directory
     }
 
     private void HandleRun()
@@ -89,7 +90,7 @@ public class Service
 
     private void SubsequentRun()
     {
-        CheckFirstRun();
+        List<int> firstRunEntryIds = CheckFirstRunEntries();
 
         Queue<int> queue = new Queue<int>();   
 
@@ -105,7 +106,10 @@ public class Service
             int id = queue.Dequeue();
             int archiveId = db.SubsequentRunArchiveCopyBefore(id);
             db.UpdateData(id, Hash.GetFileHash(db.GetHashDogTableFilepath(id), hashType));
-            db.SubsequentRunArchiveCopyAfter(id, archiveId);
+            if (!firstRunEntryIds.Contains(id))
+            {
+                db.SubsequentRunArchiveCopyAfter(id, archiveId);
+            }
             db.HandleArchiveComparisonResult(archiveId);
         }    
     }
@@ -115,8 +119,9 @@ public class Service
         return Path.Combine(Environment.CurrentDirectory, "testfolder");
     }
 
-    private void CheckFirstRun()
+    private List<int> CheckFirstRunEntries()
     {
+        List<int> firstRunEntryIds = new List<int>();
         Queue<string> queue = new Queue<string>();  
 
         if (source.IsFile && !db.IsFilePathExistInTable(source.Path))
@@ -138,8 +143,10 @@ public class Service
         while (queue.Count > 0)
         {
             string path = queue.Dequeue();
-            db.InsertData(path, Hash.GetFileHash(path, db.GetTableHashType()));
-            db.FirstRunArchiveCopyByPath(path);
+            int id = db.InsertData(path, Hash.GetFileHash(path, db.GetTableHashType()));
+            firstRunEntryIds.Add(id);
         }
+
+        return firstRunEntryIds;
     }
 }
