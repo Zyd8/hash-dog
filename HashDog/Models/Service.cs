@@ -16,14 +16,13 @@ public class Service
         HandleRun();
 
         // TimeSpan duration = TimeSpan.FromSeconds(10);
-        // Timer timer = new Timer(HandleRun!, null, duration, duration);
+        // Timer timer = new Timer(HandleRun!, null, TimeSpan.FromSeconds(0), duration);
         // Daemon daemon = new(duration, timer);
 
         // Console.ReadKey();
         // daemon.Stop();
         // Console.WriteLine("Daemon stopped.");
 
-        // Make insertdata and updatedata return the id of the data that is processed
         // Check the condition where a filepath suddenly dissapears then suddenly returns to the directory
     }
 
@@ -79,11 +78,7 @@ public class Service
         while (queue.Count > 0)
         {
             string path = queue.Dequeue();
-            db.InsertData(path, Hash.GetFileHash(path, HashType.MD5));
-        }
-
-        foreach (int id in db.GetHashDogTableIds())
-        {
+            int id = db.InsertData(path, Hash.GetFileHash(path, HashType.MD5));
             db.FirstRunArchiveCopy(id);
         }
     }
@@ -104,13 +99,17 @@ public class Service
         while (queue.Count > 0)
         {
             int id = queue.Dequeue();
-            int archiveId = db.SubsequentRunArchiveCopyBefore(id);
-            db.UpdateData(id, Hash.GetFileHash(db.GetHashDogTableFilepath(id), hashType));
-            if (!firstRunEntryIds.Contains(id))
+
+            if (Path.Exists(db.GetHashDogTableFilepath(id)))
             {
-                db.SubsequentRunArchiveCopyAfter(id, archiveId);
+                int archiveId = db.SubsequentRunArchiveCopyBefore(id);
+                db.UpdateData(id, Hash.GetFileHash(db.GetHashDogTableFilepath(id), hashType));
+                if (!firstRunEntryIds.Contains(id))
+                {
+                    db.SubsequentRunArchiveCopyAfter(id, archiveId);
+                }
+                db.HandleArchiveComparisonResult(archiveId);
             }
-            db.HandleArchiveComparisonResult(archiveId);
         }    
     }
 
