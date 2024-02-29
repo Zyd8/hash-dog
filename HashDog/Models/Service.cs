@@ -6,14 +6,55 @@ using System.Threading;
 namespace HashDog;
 public class Service
 {
-    private readonly Source source;
-    private readonly Database db;
+    private Source source;
+    private Database db;
     public Service()
     {
-        source = new(GetSourcePath());
+        // Thread thread1 = new Thread(() =>
+        // {
+        //     db = new Database(GetSourcePath());
+        //     source = new Source(GetSourcePath());
+        //     if (db.EncounterLock)
+        //     {
+        //         Console.WriteLine("Did not meet requirements");
+        //     }
+        //     else
+        //     {
+        //         HandleRun();
+        //     }
+        // });
+
+        // Thread thread2 = new Thread(() =>
+        // {
+        //     db = new Database(GetSourcePath());
+        //     source = new Source(GetSourcePath());
+        //     if (db.EncounterLock)
+        //     {
+        //         Console.WriteLine("Did not meet requirements");
+        //     }
+        //     else
+        //     {
+        //         HandleRun();
+        //     }
+        // });
+
+        // thread1.Start();
+        // thread2.Start();
+
+        // thread1.Join();
+        // thread2.Join();
+
+        
         db = new Database(GetSourcePath());
-       
-        HandleRun();
+        source = new Source(GetSourcePath());
+        if (db.EncounterLock)
+        {
+            Console.WriteLine("Did not meet requirements");
+        }
+        else
+        {
+            HandleRun();
+        }
 
         // TimeSpan duration = TimeSpan.FromSeconds(10);
         // Timer timer = new Timer(HandleRun!, null, TimeSpan.FromSeconds(0), duration);
@@ -23,13 +64,15 @@ public class Service
         // daemon.Stop();
         // Console.WriteLine("Daemon stopped.");
 
+        db.Dispose();
+
         // Check the condition where a filepath suddenly dissapears then suddenly returns to the directory
     }
 
     private void HandleRun()
     {
         // FIRST RUN
-        if (!db.DoesTableExist())
+        if (!db.HashDogTableExists())
         {
             FirstRun();
         }
@@ -38,21 +81,23 @@ public class Service
         {
             SubsequentRun();    
         } 
+
+        db.RemoveLockTablePath();
     }
 
-    private void HandleRun(object state)
-    {
-        // FIRST RUN
-        if (!db.DoesTableExist())
-        {
-            FirstRun();
-        }
-        // SUBSEQUENT RUNS
-        else
-        {
-            SubsequentRun();    
-        } 
-    }
+    // private void HandleRun(object state)
+    // {
+    //     // FIRST RUN
+    //     if (!db.DoesTableExist())
+    //     {
+    //         FirstRun();
+    //     }
+    //     // SUBSEQUENT RUNS
+    //     else
+    //     {
+    //         SubsequentRun();    
+    //     } 
+    // }
 
     private void FirstRun()
     {

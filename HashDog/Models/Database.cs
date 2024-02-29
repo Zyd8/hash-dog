@@ -8,57 +8,98 @@ namespace HashDog
 {
     public class Database : IDisposable
     {
+        private static object lockObject = new object();
         public SqliteConnection Connection; 
         public string TableName;
         public string TablePath;
+        public bool EncounterLock;
 
         public Database(string tablePath)
         {
             TablePath = tablePath;
             TableName = Path.GetFileNameWithoutExtension(TablePath);
+            EncounterLock = false;
             Connection = new SqliteConnection("Data Source=hashdog.db");
 
             Connection.Open();
 
-            //CheckLockTable();
+            HandleLockTable();
         }
 
-        // private void CreateLockTable()
-        // {
-        //     var command = Connection.CreateCommand();
-        //     command.CommandText =
-        //     $@"
-        //         CREATE TABLE IF NOT EXISTS locked_dog (
-        //             id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-        //             filepath TEXT,
-        //         );";
-        //     command.ExecuteNonQuery();
-        // }
+        private void HandleLockTable()
+        {
+            lock (lockObject)
+            {
+                if (!LockTableExists())
+                {
+                    CreateLockTable();
+                    InsertLockTablePath();
+                }
+                else
+                {
+                    if (GetLockTablePaths().Contains(TablePath))
+                    {
+                        Console.WriteLine($"{TablePath} is being used by another hash-dog instance. Try again later.");
+                        EncounterLock = true;
+                    }
+                    else
+                    {
+                        InsertLockTablePath();
+                    }
+                }
+            }
+        }
 
-        // private bool CheckLockTable()
-        // {
+        private void CreateLockTable()
+        {
+            var command = Connection.CreateCommand();
+            command.CommandText =
+            $@"
+                CREATE TABLE IF NOT EXISTS locked_dog (
+                    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                    filepath TEXT
+                );";
+            command.ExecuteNonQuery();
+        }
 
-        // }
+        private List<string> GetLockTablePaths()
+        {
+            List<string> lockedTablePaths = new List<string>();
+            var command = Connection.CreateCommand();
+            command.CommandText = $@"
+                SELECT filepath FROM locked_dog;
+            ";
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    lockedTablePaths.Add(reader.GetString(0));
+                }
+            }
+            return lockedTablePaths;
+        }
 
-        // private bool DoesLockTableExist()
-        // {
+        private void InsertLockTablePath()
+        {
+            var command = Connection.CreateCommand();
+            command.CommandText = $@"
+                INSERT INTO locked_dog (filepath)
+                VALUES (@filepath);
+            ";
+            command.Parameters.AddWithValue("@filepath", TablePath);
+            command.ExecuteNonQuery();
+        }
 
-        // }
-
-        // private string GetLockTablePaths()
-        // {
-
-        // }
-
-        // private string InsertLockTablePath()
-        // {
-
-        // }
-
-        // private string RemoveLockTablePath()
-        // {
-
-        // }
+        public void RemoveLockTablePath()
+        {
+            var command = Connection.CreateCommand();
+            command.CommandText = $@"
+                DELETE FROM locked_dog
+                WHERE filepath = @filepath;
+            ";
+            command.Parameters.AddWithValue("@filepath", TablePath);
+            command.ExecuteNonQuery();
+        }
 
         public bool IsFilePathExistInTable(string filePath)
         {
@@ -71,7 +112,7 @@ namespace HashDog
             return rowCount > 0;
         }
 
-        public bool DoesTableExist()
+        public bool HashDogTableExists()
         {
             var command = Connection.CreateCommand();
             command.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=@tableName";
@@ -80,7 +121,17 @@ namespace HashDog
             int count = Convert.ToInt32(command.ExecuteScalar());
 
             return count > 0;
-            
+        }
+
+        public bool LockTableExists()
+        {
+            var command = Connection.CreateCommand();
+            command.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=@tableName";
+            command.Parameters.AddWithValue("@tableName", "locked_dog");
+
+            int count = Convert.ToInt32(command.ExecuteScalar());
+
+            return count > 0;
         }
 
         public void CreateHashDog()
