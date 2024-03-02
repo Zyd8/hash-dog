@@ -7,14 +7,16 @@ class Hash
 {
     public static string GetFileHash(string path, HashType hashType)
     {
-        byte[] fileBytes = File.ReadAllBytes(path);
-
-        using (var hashAlgorithm = GetCryptographicHashAlgorithm(hashType))
+        using (var stream = File.OpenRead(path))
         {
-            byte[] hashBytes = hashAlgorithm.ComputeHash(fileBytes);
-            return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+            using (var hashAlgorithm = GetCryptographicHashAlgorithm(hashType))
+            {
+                byte[] hashBytes = hashAlgorithm.ComputeHash(stream);
+                return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+            }
         }
     }
+
 
     private static HashAlgorithm GetCryptographicHashAlgorithm(HashType hashType)
     {
