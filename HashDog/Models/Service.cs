@@ -160,7 +160,7 @@ public class Service
 
     private static string GetSourcePath()
     {
-        return Path.Combine(Environment.CurrentDirectory, "testfolder");
+        return Path.Combine(Environment.CurrentDirectory, "testfolder copy");
     }
 
     private List<int> CheckFirstRunEntries()

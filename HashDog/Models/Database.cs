@@ -153,8 +153,9 @@ namespace HashDog
                     timestamp DATE
                 );
 
-                CREATE TABLE IF NOT EXISTS {TableName}_metadata (
+                CREATE TABLE IF NOT EXISTS hashdog_metadata (
                     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                    tablepath TEXT,
                     hashtype TEXT,
                     table_created DATE,
                     scheduled_run DATE,
@@ -181,9 +182,10 @@ namespace HashDog
         {
             var command = Connection.CreateCommand();
             command.CommandText = $@"
-                INSERT INTO {TableName}_metadata (hashtype, table_created)
-                VALUES (@hashtype, @table_created);
+                INSERT INTO hashdog_metadata (tablepath, hashtype, table_created)
+                VALUES (@tablepath, @hashtype, @table_created);
             ";
+            command.Parameters.AddWithValue("@tablepath", TablePath);
             command.Parameters.AddWithValue("@hashtype", Parser.ParseHashTypeToString(hashType));
             command.Parameters.AddWithValue("@table_created", DateTime.Now);
             command.ExecuteNonQuery();
@@ -401,13 +403,17 @@ namespace HashDog
 
         public HashType GetTableHashType()
         {
-            string query = $@"SELECT * FROM {TableName}_metadata";
+            string query = $@"
+                SELECT hashtype FROM hashdog_metadata 
+                WHERE @tablepath=@tablepath;
+            ";
             var command = new SqliteCommand(query, Connection);
+            command.Parameters.AddWithValue("@tablepath", TablePath);
             using (var reader = command.ExecuteReader())
             {
                 while (reader.Read())
                 {
-                    return Parser.ParseStringToHashType(reader.GetString(1));
+                    return Parser.ParseStringToHashType(reader.GetString(0));
                 }
             }
             throw new Exception();
