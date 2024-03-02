@@ -26,6 +26,8 @@ namespace HashDog
             HandleLockTable();
         }
 
+
+
         private static string SanitizeTableName(string path)
         {
             string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(path);
@@ -158,8 +160,8 @@ namespace HashDog
                     tablepath TEXT,
                     hashtype TEXT,
                     table_created DATE,
-                    scheduled_run DATE,
-                    frequency_run TEXT,
+                    run_schedule DATE,
+                    run_frequency TEXT,
                     ran_on_schedule BOOL 
                 );
 
