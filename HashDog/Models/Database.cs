@@ -12,13 +12,13 @@ namespace HashDog
         public SqliteConnection Connection; 
         public string TableName;
         public string TablePath;
-        public bool EncounterLock;
+        public bool IsTableLocked;
 
         public Database(string tablePath)
         {
             TablePath = tablePath;
             TableName = Path.GetFileNameWithoutExtension(TablePath);
-            EncounterLock = false;
+            IsTableLocked = false;
             Connection = new SqliteConnection("Data Source=hashdog.db");
 
             Connection.Open();
@@ -40,7 +40,7 @@ namespace HashDog
                     if (GetLockTablePaths().Contains(TablePath))
                     {
                         Console.WriteLine($"{TablePath} is being used by another hash-dog instance. Try again later.");
-                        EncounterLock = true;
+                        IsTableLocked = true;
                     }
                     else
                     {

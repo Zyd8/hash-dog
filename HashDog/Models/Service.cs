@@ -47,7 +47,7 @@ public class Service
         
         db = new Database(GetSourcePath());
         source = new Source(GetSourcePath());
-        if (db.EncounterLock)
+        if (db.IsTableLocked)
         {
             Console.WriteLine("Did not meet requirements");
         }
