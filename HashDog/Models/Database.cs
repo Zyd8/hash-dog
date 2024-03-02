@@ -28,7 +28,7 @@ namespace HashDog
 
         private void HandleLockTable()
         {
-            lock (lockObject)
+            lock (lockObject) // For thread safety
             {
                 if (!LockTableExists())
                 {
