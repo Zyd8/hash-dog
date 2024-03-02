@@ -17,13 +17,20 @@ namespace HashDog
         public Database(string tablePath)
         {
             TablePath = tablePath;
-            TableName = Path.GetFileNameWithoutExtension(TablePath);
+            TableName = SanitizeTableName(TablePath);
             IsTableLocked = false;
             Connection = new SqliteConnection("Data Source=hashdog.db");
 
             Connection.Open();
 
             HandleLockTable();
+        }
+
+        private static string SanitizeTableName(string path)
+        {
+            string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(path);
+            string sanitizedTableName = fileNameWithoutExtension.Replace(" ", "_");
+            return sanitizedTableName;
         }
 
         private void HandleLockTable()
@@ -149,7 +156,10 @@ namespace HashDog
                 CREATE TABLE IF NOT EXISTS {TableName}_metadata (
                     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
                     hashtype TEXT,
-                    table_created DATE
+                    table_created DATE,
+                    scheduled_run DATE,
+                    frequency_run TEXT,
+                    ran_on_schedule BOOL 
                 );
 
                 CREATE TABLE IF NOT EXISTS {TableName}_archive (
