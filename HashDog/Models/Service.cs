@@ -10,58 +10,51 @@ public class Service
     private Database db;
     public Service()
     {
-        // Thread thread1 = new Thread(() =>
-        // {
-        //     db = new Database(GetSourcePath());
-        //     source = new Source(GetSourcePath());
-        //     if (db.EncounterLock)
-        //     {
-        //         Console.WriteLine("Did not meet requirements");
-        //     }
-        //     else
-        //     {
-        //         HandleRun();
-        //     }
-        // });
-
-        // Thread thread2 = new Thread(() =>
-        // {
-        //     db = new Database(GetSourcePath());
-        //     source = new Source(GetSourcePath());
-        //     if (db.EncounterLock)
-        //     {
-        //         Console.WriteLine("Did not meet requirements");
-        //     }
-        //     else
-        //     {
-        //         HandleRun();
-        //     }
-        // });
-
-        // thread1.Start();
-        // thread2.Start();
-
-        // thread1.Join();
-        // thread2.Join();
-
-        
+    
         db = new Database(GetSourcePath());
         source = new Source(GetSourcePath());
         
-        HandleRun();
-        
-
-        // TimeSpan duration = TimeSpan.FromSeconds(10);
-        // Timer timer = new Timer(HandleRun!, null, TimeSpan.FromSeconds(0), duration);
-        // Daemon daemon = new(duration, timer);
-
-        // Console.ReadKey();
-        // daemon.Stop();
-        // Console.WriteLine("Daemon stopped.");
+        //HandleRun();
+        //ThreadRun();
+        //DaemonRun();
 
         db.Dispose();
+    }
 
-        // Check the condition where a filepath suddenly dissapears then suddenly returns to the directory
+    private void DaemonRun()
+    {
+        TimeSpan duration = TimeSpan.FromSeconds(10);
+        Timer timer = new Timer(HandleRun, null, TimeSpan.FromSeconds(0), duration);
+        Daemon daemon = new(duration, timer);
+
+        Console.ReadKey();
+        daemon.Stop();
+        Console.WriteLine("Daemon stopped.");
+    }
+
+    private void ThreadRun()
+    {
+        Thread thread1 = new Thread(() =>
+        {
+            db = new Database(GetSourcePath());
+            source = new Source(GetSourcePath());
+            HandleRun();
+       
+        });
+
+        Thread thread2 = new Thread(() =>
+        {
+            db = new Database(GetSourcePath());
+            source = new Source(GetSourcePath());
+            HandleRun();
+        
+        });
+
+        thread1.Start();
+        thread2.Start();
+
+        thread1.Join();
+        thread2.Join();
     }
 
     private void HandleRun()
@@ -86,20 +79,6 @@ public class Service
             db.RemoveLockTablePath();
         }
     }
-
-    // private void HandleRun(object state)
-    // {
-    //     // FIRST RUN
-    //     if (!db.DoesTableExist())
-    //     {
-    //         FirstRun();
-    //     }
-    //     // SUBSEQUENT RUNS
-    //     else
-    //     {
-    //         SubsequentRun();    
-    //     } 
-    // }
 
     private void FirstRun()
     {
@@ -166,6 +145,7 @@ public class Service
     }
 
     private List<int> CheckFirstRunEntries()
+    """Checks for first entries of files in in subsequent runs and return their ids"""
     {
         List<int> firstRunEntryIds = new List<int>();
         Queue<string> queue = new Queue<string>();  
