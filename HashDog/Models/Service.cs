@@ -13,18 +13,16 @@ public class Service
     
         db = new Database(GetSourcePath());
         source = new Source(GetSourcePath());
-        
         HandleRun();
-        //ThreadRun();
-        //DaemonRun();
 
+        //DaemonRun();
         db.Dispose();
     }
 
     private void DaemonRun()
     {
         TimeSpan duration = TimeSpan.FromSeconds(10);
-        Timer timer = new Timer(HandleRun, null, TimeSpan.FromSeconds(0), duration);
+        Timer timer = new Timer(HandleRun!, null, TimeSpan.FromSeconds(0), duration);
         Daemon daemon = new(duration, timer);
 
         Console.ReadKey();
@@ -32,50 +30,30 @@ public class Service
         Console.WriteLine("Daemon stopped.");
     }
 
-    private void ThreadRun()
-    {
-        Thread thread1 = new Thread(() =>
-        {
-            db = new Database(GetSourcePath());
-            source = new Source(GetSourcePath());
-            HandleRun();
-       
-        });
-
-        Thread thread2 = new Thread(() =>
-        {
-            db = new Database(GetSourcePath());
-            source = new Source(GetSourcePath());
-            HandleRun();
-        
-        });
-
-        thread1.Start();
-        thread2.Start();
-
-        thread1.Join();
-        thread2.Join();
-    }
-
     private void HandleRun(object state)
     {
-        if (db.IsTableLocked)
+        try
         {
-            Console.WriteLine($"{db.TablePath} is being used by another hash-dog instance. Try again later.");
-        }
-        else
-        {
-            // FIRST RUN
-            if (!db.HashDogTableExists())
+            if (db.IsTableLocked)
             {
-                FirstRun();
+                Console.WriteLine($"{db.TablePath} is being used by another hash-dog instance. Try again later.");
             }
-            // SUBSEQUENT RUNS
             else
             {
-                SubsequentRun();    
-            } 
-
+                // FIRST RUN
+                if (!db.HashDogTableExists())
+                {
+                    FirstRun();
+                }
+                // SUBSEQUENT RUNS
+                else
+                {
+                    SubsequentRun();    
+                } 
+            }
+        }
+        finally
+        {
             db.RemoveLockTablePath();
         }
     }
@@ -83,23 +61,28 @@ public class Service
 
     private void HandleRun()
     {
-        if (db.IsTableLocked)
+        try
         {
-            Console.WriteLine($"{db.TablePath} is being used by another hash-dog instance. Try again later.");
-        }
-        else
-        {
-            // FIRST RUN
-            if (!db.HashDogTableExists())
+            if (db.IsTableLocked)
             {
-                FirstRun();
+                Console.WriteLine($"{db.TablePath} is being used by another hash-dog instance. Try again later.");
             }
-            // SUBSEQUENT RUNS
             else
             {
-                SubsequentRun();    
-            } 
-
+                // FIRST RUN
+                if (!db.HashDogTableExists())
+                {
+                    FirstRun();
+                }
+                // SUBSEQUENT RUNS
+                else
+                {
+                    SubsequentRun();    
+                } 
+            }
+        }
+        finally
+        {
             db.RemoveLockTablePath();
         }
     }

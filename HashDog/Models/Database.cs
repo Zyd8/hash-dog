@@ -8,7 +8,6 @@ namespace HashDog
 {
     public class Database : IDisposable
     {
-        private static object lockObject = new object();
         public SqliteConnection Connection; 
         public string TableName;
         public string TablePath;
@@ -37,23 +36,20 @@ namespace HashDog
 
         private void HandleLockTable()
         {
-            lock (lockObject) // For thread safety
+            if (!LockTableExists())
             {
-                if (!LockTableExists())
+                CreateLockTable();
+                InsertLockTablePath();
+            }
+            else
+            {
+                if (GetLockTablePaths().Contains(TablePath))
                 {
-                    CreateLockTable();
-                    InsertLockTablePath();
+                    IsTableLocked = true;
                 }
                 else
                 {
-                    if (GetLockTablePaths().Contains(TablePath))
-                    {
-                        IsTableLocked = true;
-                    }
-                    else
-                    {
-                        InsertLockTablePath();
-                    }
+                    InsertLockTablePath();
                 }
             }
         }
