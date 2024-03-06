@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Threading;
 
 namespace HashDog;
 public class Service
@@ -15,18 +14,20 @@ public class Service
         source = new Source(GetSourcePath());
         HandleRun();
 
-        //DaemonRun();
+        DaemonRun();
         db.Dispose();
     }
 
     private void DaemonRun()
     {
         TimeSpan duration = TimeSpan.FromSeconds(10);
-        Timer timer = new Timer(HandleRun!, null, TimeSpan.FromSeconds(0), duration);
-        Daemon daemon = new(duration, timer);
+        Daemon daemon = new(duration);
+        daemon.Start(HandleRun!);
 
         Console.ReadKey();
+
         daemon.Stop();
+        
         Console.WriteLine("Daemon stopped.");
     }
 

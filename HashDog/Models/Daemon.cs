@@ -1,21 +1,26 @@
 using System;
 using System.Threading;
 
-namespace HashDog;
-
-public class Daemon
+namespace HashDog
 {
-    public Timer timer;
-    public TimeSpan duration;
-
-    public Daemon(TimeSpan duration, Timer timer)
+    public class Daemon
     {
-        this.duration = duration;
-        this.timer = timer;
-    }
+        private TimeSpan duration;
+        private Timer? timer;
 
-    public void Stop()
-    {
-        timer.Dispose();
+        public Daemon(TimeSpan duration)
+        {
+            this.duration = duration;
+        }
+
+        public void Start(TimerCallback callback)
+        {
+            timer = new Timer(callback, null, TimeSpan.Zero, duration);
+        }
+
+        public void Stop()
+        {
+            timer?.Dispose();
+        }
     }
 }
