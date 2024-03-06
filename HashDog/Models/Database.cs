@@ -48,7 +48,6 @@ namespace HashDog
                 {
                     if (GetLockTablePaths().Contains(TablePath))
                     {
-                        Console.WriteLine($"{TablePath} is being used by another hash-dog instance. Try again later.");
                         IsTableLocked = true;
                     }
                     else

@@ -47,14 +47,9 @@ public class Service
         
         db = new Database(GetSourcePath());
         source = new Source(GetSourcePath());
-        if (db.IsTableLocked)
-        {
-            Console.WriteLine("Did not meet requirements");
-        }
-        else
-        {
-            HandleRun();
-        }
+        
+        HandleRun();
+        
 
         // TimeSpan duration = TimeSpan.FromSeconds(10);
         // Timer timer = new Timer(HandleRun!, null, TimeSpan.FromSeconds(0), duration);
@@ -71,18 +66,25 @@ public class Service
 
     private void HandleRun()
     {
-        // FIRST RUN
-        if (!db.HashDogTableExists())
+        if (db.IsTableLocked)
         {
-            FirstRun();
+            Console.WriteLine($"{db.TablePath} is being used by another hash-dog instance. Try again later.");
         }
-        // SUBSEQUENT RUNS
         else
         {
-            SubsequentRun();    
-        } 
+            // FIRST RUN
+            if (!db.HashDogTableExists())
+            {
+                FirstRun();
+            }
+            // SUBSEQUENT RUNS
+            else
+            {
+                SubsequentRun();    
+            } 
 
-        db.RemoveLockTablePath();
+            db.RemoveLockTablePath();
+        }
     }
 
     // private void HandleRun(object state)
