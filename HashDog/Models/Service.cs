@@ -14,7 +14,7 @@ public class Service
         db = new Database(GetSourcePath());
         source = new Source(GetSourcePath());
         
-        //HandleRun();
+        HandleRun();
         //ThreadRun();
         //DaemonRun();
 
@@ -56,6 +56,30 @@ public class Service
         thread1.Join();
         thread2.Join();
     }
+
+    private void HandleRun(object state)
+    {
+        if (db.IsTableLocked)
+        {
+            Console.WriteLine($"{db.TablePath} is being used by another hash-dog instance. Try again later.");
+        }
+        else
+        {
+            // FIRST RUN
+            if (!db.HashDogTableExists())
+            {
+                FirstRun();
+            }
+            // SUBSEQUENT RUNS
+            else
+            {
+                SubsequentRun();    
+            } 
+
+            db.RemoveLockTablePath();
+        }
+    }
+
 
     private void HandleRun()
     {
@@ -145,7 +169,6 @@ public class Service
     }
 
     private List<int> CheckFirstRunEntries()
-    """Checks for first entries of files in in subsequent runs and return their ids"""
     {
         List<int> firstRunEntryIds = new List<int>();
         Queue<string> queue = new Queue<string>();  
