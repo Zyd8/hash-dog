@@ -25,8 +25,6 @@ namespace HashDog
             HandleLockTable();
         }
 
-
-
         private static string SanitizeTableName(string path)
         {
             string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(path);
@@ -155,8 +153,8 @@ namespace HashDog
                     tablepath TEXT,
                     hashtype TEXT,
                     table_created DATE,
-                    run_schedule DATE,
                     run_frequency TEXT,
+                    run_schedule DATE,
                     ran_on_schedule BOOL 
                 );
 
@@ -175,15 +173,16 @@ namespace HashDog
         }
 
 
-        public void InsertMetadata(HashType hashType)
+        public void InsertMetadata(HashType hashType, RunFrequency runFrequency)
         {
             var command = Connection.CreateCommand();
             command.CommandText = $@"
-                INSERT INTO hashdog_metadata (tablepath, hashtype, table_created)
-                VALUES (@tablepath, @hashtype, @table_created);
+                INSERT INTO hashdog_metadata (tablepath, hashtype, table_created, run_frequency)
+                VALUES (@tablepath, @hashtype, @table_created, @run_frequency);
             ";
             command.Parameters.AddWithValue("@tablepath", TablePath);
             command.Parameters.AddWithValue("@hashtype", Parser.ParseHashTypeToString(hashType));
+            command.Parameters.AddWithValue("@run_frequency", Parser.ParseRunFrequencyToString(runFrequency));
             command.Parameters.AddWithValue("@table_created", DateTime.Now);
             command.ExecuteNonQuery();
         }

@@ -9,12 +9,11 @@ public class Service
     private Database db;
     public Service()
     {
-    
         db = new Database(GetSourcePath());
         source = new Source(GetSourcePath());
+        
         HandleRun();
-
-        DaemonRun();
+        //DaemonRun();
         db.Dispose();
     }
 
@@ -27,7 +26,7 @@ public class Service
         Console.ReadKey();
 
         daemon.Stop();
-        
+
         Console.WriteLine("Daemon stopped.");
     }
 
@@ -107,7 +106,7 @@ public class Service
             }
         }
 
-        db.InsertMetadata(HashType.MD5);
+        db.InsertMetadata(HashType.MD5, RunFrequency.Weekly);
 
         while (queue.Count > 0)
         {
@@ -149,7 +148,7 @@ public class Service
 
     private static string GetSourcePath()
     {
-        return Path.Combine(Environment.CurrentDirectory, "testfolder copy");
+        return Path.Combine(Environment.CurrentDirectory, "testfolder");
     }
 
     private List<int> CheckFirstRunEntries()
