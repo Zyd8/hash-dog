@@ -253,16 +253,14 @@ namespace HashDog
         public void UpdateScheduleRunSkipped()
         {
             int runFrequencyMinutes = GetRunFrequencyMinutes();
-            DateTime scheduleRunTime = GetScheduledRun();
-            DateTime newScheduleRunTime = DateTime.Now.AddMinutes(runFrequencyMinutes);
-
+        
             var command = Connection.CreateCommand();
             command.CommandText = @"
                 UPDATE hashdog_metadata 
                 SET run_schedule = @nextScheduledRunTime
                 WHERE tablepath = @tablepath;
             ";
-            command.Parameters.AddWithValue("@nextScheduledRunTime", newScheduleRunTime);
+            command.Parameters.AddWithValue("@nextScheduledRunTime", DateTime.Now);
             command.Parameters.AddWithValue("@tablepath", TablePath);
             command.ExecuteNonQuery();
         }
