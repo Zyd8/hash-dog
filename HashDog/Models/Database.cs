@@ -49,7 +49,7 @@ namespace HashDog
                 {
                     InsertLockTablePath();
                 }
-            }
+            }    
         }
 
         private void CreateLockTable()
@@ -114,6 +114,17 @@ namespace HashDog
             return rowCount > 0;
         }
 
+        public bool IsTablePathExistInMetadataTable()
+        {
+            var command = Connection.CreateCommand();
+            command.CommandText = $"SELECT COUNT(*) FROM hashdog_metadata WHERE tablepath = @tablepath";
+            command.Parameters.AddWithValue("@tablepath", TablePath);
+
+            int rowCount = Convert.ToInt32(command.ExecuteScalar());
+
+            return rowCount > 0;
+        }
+
         public bool HashDogTableExists()
         {
             var command = Connection.CreateCommand();
@@ -153,7 +164,7 @@ namespace HashDog
                     tablepath TEXT,
                     hashtype TEXT,
                     table_created DATE,
-                    run_frequency TEXT,
+                    run_frequency_minutes INTEGER,
                     run_schedule DATE,
                     ran_on_schedule BOOL 
                 );
@@ -173,19 +184,90 @@ namespace HashDog
         }
 
 
-        public void InsertMetadata(HashType hashType, RunFrequency runFrequency)
+        public void InsertMetadata(HashType hashType, int runFrequencyMinutes)
         {
             var command = Connection.CreateCommand();
             command.CommandText = $@"
-                INSERT INTO hashdog_metadata (tablepath, hashtype, table_created, run_frequency)
-                VALUES (@tablepath, @hashtype, @table_created, @run_frequency);
+                INSERT INTO hashdog_metadata (tablepath, hashtype, table_created, run_frequency_minutes, run_schedule)
+                VALUES (@tablepath, @hashtype, @table_created, @run_frequency_minutes, @run_schedule);
             ";
             command.Parameters.AddWithValue("@tablepath", TablePath);
             command.Parameters.AddWithValue("@hashtype", Parser.ParseHashTypeToString(hashType));
-            command.Parameters.AddWithValue("@run_frequency", Parser.ParseRunFrequencyToString(runFrequency));
+            command.Parameters.AddWithValue("@run_frequency_minutes", runFrequencyMinutes);
+            command.Parameters.AddWithValue("@run_schedule", DateTime.Now.Add(TimeSpan.FromMinutes(runFrequencyMinutes)));
             command.Parameters.AddWithValue("@table_created", DateTime.Now);
             command.ExecuteNonQuery();
         }
+
+        public DateTime GetScheduledRun()
+        {
+            var command = Connection.CreateCommand();
+            command.CommandText = $@"
+                SELECT run_schedule FROM hashdog_metadata where tablepath=@tablepath;
+            ";
+            command.Parameters.AddWithValue("@tablepath", TablePath);
+            using (var reader = command.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    return reader.GetDateTime(0);
+                }
+            }
+            throw new Exception();
+        }
+
+        public int GetRunFrequencyMinutes()
+        {
+            var command = Connection.CreateCommand();
+            command.CommandText = $@"
+                SELECT run_frequency_minutes FROM hashdog_metadata where tablepath=@tablepath;
+            ";
+            command.Parameters.AddWithValue("@tablepath", TablePath);
+            using (var reader = command.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    return reader.GetInt32(0);
+                }
+            }
+            throw new Exception();
+        }
+
+        public void UpdateScheduleRun()
+        {
+            int runFrequencyMinutes = GetRunFrequencyMinutes();
+            DateTime scheduleRunTime = GetScheduledRun();
+            DateTime newScheduleRunTime = scheduleRunTime.AddMinutes(runFrequencyMinutes);
+
+            var command = Connection.CreateCommand();
+            command.CommandText = @"
+                UPDATE hashdog_metadata 
+                SET run_schedule = @nextScheduledRunTime
+                WHERE tablepath = @tablepath;
+            ";
+            command.Parameters.AddWithValue("@nextScheduledRunTime", newScheduleRunTime);
+            command.Parameters.AddWithValue("@tablepath", TablePath);
+            command.ExecuteNonQuery();
+        }
+
+        public void UpdateScheduleRunSkipped()
+        {
+            int runFrequencyMinutes = GetRunFrequencyMinutes();
+            DateTime scheduleRunTime = GetScheduledRun();
+            DateTime newScheduleRunTime = DateTime.Now.AddMinutes(runFrequencyMinutes);
+
+            var command = Connection.CreateCommand();
+            command.CommandText = @"
+                UPDATE hashdog_metadata 
+                SET run_schedule = @nextScheduledRunTime
+                WHERE tablepath = @tablepath;
+            ";
+            command.Parameters.AddWithValue("@nextScheduledRunTime", newScheduleRunTime);
+            command.Parameters.AddWithValue("@tablepath", TablePath);
+            command.ExecuteNonQuery();
+        }
+
+    
 
         public int InsertData(string filePath, string hashValue)
         {

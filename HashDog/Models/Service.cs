@@ -9,60 +9,96 @@ public class Service
     private Database db;
     public Service()
     {
-        db = new Database(GetSourcePath());
-        source = new Source(GetSourcePath());
-        
-        HandleRun();
-        //DaemonRun();
-        db.Dispose();
+        try
+        {
+            db = new Database(GetSourcePath());
+            source = new Source(GetSourcePath());
+
+            Console.CancelKeyPress += (sender, eventArgs) =>
+            {
+                db.RemoveLockTablePath();
+                db.Dispose();
+            };
+            
+            //HandleRun();
+            DaemonRun();
+        }
+        finally
+        {
+            db?.RemoveLockTablePath();
+            db?.Dispose();
+        }
     }
 
     private void DaemonRun()
     {
-        TimeSpan duration = TimeSpan.FromSeconds(10);
-        Daemon daemon = new(duration);
-        daemon.Start(HandleRun!);
+        // try
+        // {
+            if (!db.IsTableLocked && db.HashDogTableExists())
+            {
+                DateTime scheduledRunTime = db.GetScheduledRun();
+                
+                if (DateTime.Now > scheduledRunTime)
+                {
+                    db.UpdateScheduleRunSkipped();
+                    scheduledRunTime = db.GetScheduledRun();
+                }
 
-        Console.ReadKey();
 
-        daemon.Stop();
+                if (db.IsTablePathExistInMetadataTable())
+                {
+                    TimeSpan targetTime = scheduledRunTime - DateTime.Now;
 
-        Console.WriteLine("Daemon stopped.");
+                    Daemon daemon = new Daemon(targetTime);
+
+                    daemon.Start(HandleRun!);
+
+                    Console.ReadKey();
+
+                    daemon.Stop();
+
+                    Console.WriteLine("Daemon stopped.");
+                }
+            }
+            else
+            {
+                HandleRun();
+                DaemonRun();
+            }
+        // }
+        // finally 
+        // {
+        //     db.RemoveLockTablePath();    
+        // }
     }
 
     private void HandleRun(object state)
     {
-        try
+        
+        if (db.IsTableLocked)
         {
-            if (db.IsTableLocked)
+            Console.WriteLine($"{db.TablePath} is being used by another hash-dog instance. Try again later.");
+        }
+        else
+        {
+            // FIRST RUN
+            if (!db.HashDogTableExists())
             {
-                Console.WriteLine($"{db.TablePath} is being used by another hash-dog instance. Try again later.");
+                FirstRun();
             }
+            // SUBSEQUENT RUNS
             else
             {
-                // FIRST RUN
-                if (!db.HashDogTableExists())
-                {
-                    FirstRun();
-                }
-                // SUBSEQUENT RUNS
-                else
-                {
-                    SubsequentRun();    
-                } 
-            }
-        }
-        finally
-        {
-            db.RemoveLockTablePath();
+                SubsequentRun();    
+            } 
         }
     }
 
 
     private void HandleRun()
     {
-        try
-        {
+        // try
+        // {
             if (db.IsTableLocked)
             {
                 Console.WriteLine($"{db.TablePath} is being used by another hash-dog instance. Try again later.");
@@ -80,11 +116,11 @@ public class Service
                     SubsequentRun();    
                 } 
             }
-        }
-        finally
-        {
-            db.RemoveLockTablePath();
-        }
+        // }
+        // finally
+        // {
+        //     db.RemoveLockTablePath();
+        // }
     }
 
     private void FirstRun()
@@ -106,7 +142,7 @@ public class Service
             }
         }
 
-        db.InsertMetadata(HashType.MD5, RunFrequency.Weekly);
+        db.InsertMetadata(HashType.MD5, 1);
 
         while (queue.Count > 0)
         {
@@ -144,6 +180,8 @@ public class Service
                 db.HandleArchiveComparisonResult(archiveId);
             }
         }    
+
+        db.UpdateScheduleRun();
     }
 
     private static string GetSourcePath()

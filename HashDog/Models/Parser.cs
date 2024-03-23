@@ -91,32 +91,4 @@ public class Parser
             throw new ArgumentException("Invalid hash comparison result string");
         }
     }
-
-    public static string ParseRunFrequencyToString(RunFrequency value)
-    {
-        if (value == RunFrequency.Hourly)
-        {
-            return "Hourly";
-        }
-        else if (value == RunFrequency.Daily)
-        {
-            return "Daily";
-        }
-        else if (value == RunFrequency.Weekly)
-        {
-            return "Weekly";
-        }
-        else if (value == RunFrequency.Monthly)
-        {
-            return "Monthly";
-        }
-        else if (value == RunFrequency.Yearly)
-        {
-            return "Yearly";
-        }
-        else
-        {
-            throw new ArgumentException("Invalid run frequency type");
-        }
-    }
 }

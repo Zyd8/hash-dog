@@ -5,17 +5,17 @@ namespace HashDog
 {
     public class Daemon
     {
-        private TimeSpan duration;
+        private TimeSpan target;
         private Timer? timer;
 
-        public Daemon(TimeSpan duration)
+        public Daemon(TimeSpan target)
         {
-            this.duration = duration;
+            this.target = target;
         }
 
         public void Start(TimerCallback callback)
         {
-            timer = new Timer(callback, null, TimeSpan.Zero, duration);
+            timer = new Timer(callback, null, target, target);
         }
 
         public void Stop()

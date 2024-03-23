@@ -15,13 +15,3 @@ public enum HashCompareResult
     match,
     mismatch,
 }
-
-
-public enum RunFrequency
-{
-    Hourly,
-    Daily,
-    Monthly,
-    Weekly,
-    Yearly,
-}
