@@ -41,7 +41,6 @@ public class Service
                 if ((DateTime.Now > scheduledRunTime) && db.IsTablePathExistInMetadataTable())
                 {
                     db.UpdateScheduleRunSkipped();
-                    scheduledRunTime = db.GetScheduledRun();
                     HandleRun();
                     DaemonRun();
                 }
