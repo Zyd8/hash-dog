@@ -166,7 +166,6 @@ namespace HashDog
                     table_created DATE,
                     run_frequency_minutes INTEGER,
                     run_schedule DATE,
-                    ran_on_schedule BOOL 
                 );
 
                 CREATE TABLE IF NOT EXISTS {TableName}_archive (
@@ -252,8 +251,6 @@ namespace HashDog
 
         public void UpdateScheduleRunSkipped()
         {
-            int runFrequencyMinutes = GetRunFrequencyMinutes();
-        
             var command = Connection.CreateCommand();
             command.CommandText = @"
                 UPDATE hashdog_metadata 
