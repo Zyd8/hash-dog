@@ -38,14 +38,15 @@ public class Service
             {
                 DateTime scheduledRunTime = db.GetScheduledRun();
                 
-                if (DateTime.Now > scheduledRunTime)
+                if ((DateTime.Now > scheduledRunTime) && db.IsTablePathExistInMetadataTable())
                 {
                     db.UpdateScheduleRunSkipped();
                     scheduledRunTime = db.GetScheduledRun();
+                    HandleRun();
+                    DaemonRun();
                 }
 
-
-                if (db.IsTablePathExistInMetadataTable())
+                else if (db.IsTablePathExistInMetadataTable())
                 {
                     TimeSpan targetTime = scheduledRunTime - DateTime.Now;
 
