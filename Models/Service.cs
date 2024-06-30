@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
+using Serilog;
 
 namespace HashDog
 {
@@ -10,7 +11,14 @@ namespace HashDog
 
         private List<Scheduler> _schedulers = new List<Scheduler>();
 
-        public Service() 
+        private static readonly Service _instance = new Service();
+
+        public static Service Instance
+        {
+            get { return _instance; }
+        }
+
+        private Service() 
         {
             InitDatabase();                 
         }
@@ -194,6 +202,7 @@ namespace HashDog
             {
                 _timer.Change(interval, Timeout.InfiniteTimeSpan);
             }
+            Log.Information("Changing schedules");
         }
 
         // Runs on set schedule, checks for untracked files and insert it, or update tracked files
@@ -208,6 +217,7 @@ namespace HashDog
         {
             _timer?.Change(Timeout.Infinite, Timeout.Infinite);
             _timer?.Dispose();
+            Log.Information("I disposed");
         }
     }
 

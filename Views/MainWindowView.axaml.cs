@@ -1,6 +1,4 @@
 using Avalonia.Controls;
-using System.Linq;
-using HashDog;
 using HashDog.ViewModels;
 using System;
 using Serilog;
@@ -10,22 +8,22 @@ namespace HashDog.Views;
 
 public partial class MainWindowView : Window
 {
-    private Service _service;
+    private Service _instance;
 
     public MainWindowView()
     {
         InitializeComponent();
         this.DataContext = new MainWindowViewModel();
 
-       
-        _service = new Service();
 
-        _service.AddOutpost(_service.GetNewOutpostPath());
-        _service.AddOutpost(@"C:\Users\Zyd\testing\outpost2");
+        _instance = Service.Instance;
 
-        _service.SetScheduleRunTimer();
+        _instance.AddOutpost(_instance.GetNewOutpostPath());
+        _instance.AddOutpost(@"C:\Users\Zyd\testing\outpost2");
 
-        Log.Information("Test again");
+        _instance.SetScheduleRunTimer();
+
+        Log.Information("Testingggggg");
 
 
         this.Closed += OnWindowClosed;
@@ -34,7 +32,7 @@ public partial class MainWindowView : Window
     // for testing purposes only
     private void OnWindowClosed(object? sender, EventArgs e)
     {
-        _service.Dispose(); 
+        _instance.Dispose(); 
         Log.Information("Service Disposed");
     }
 }

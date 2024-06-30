@@ -1,6 +1,5 @@
 ﻿using Avalonia;
 using Serilog;
-using Serilog.Sinks.File;
 using System;
 using System.IO;
 
