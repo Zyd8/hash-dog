@@ -8,7 +8,7 @@
         Title="HashDog"
         x:DataType="vm:MainWindowViewModel"
 		Width="1200"
-        Height="600">
+        Height="800">
 
 	<Design.DataContext>
 		<vm:MainWindowViewModel/>
@@ -21,8 +21,8 @@
 			<ColumnDefinition Width="70*"/>
 		</Grid.ColumnDefinitions>
 		<Grid.RowDefinitions>
-			<RowDefinition Height="*"/>
-			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="400"/>
+			<RowDefinition Height="400"/>
 		</Grid.RowDefinitions>
 
 		<!-- ListBox and ToggleButton StackPanel -->
@@ -46,9 +46,24 @@
                           Margin="20"/>
 		</StackPanel>
 
-		<!-- DataGrid in the second column -->
-		<DataGrid Grid.Column="1" Grid.Row="0" ItemsSource="{Binding ItemsSource}" AutoGenerateColumns="True" IsReadOnly="True" >
-			<!-- Define columns if needed -->
-		</DataGrid>
+			<!-- DataGrid for Outpost -->
+			<DataGrid Grid.Column="1" Grid.Row="0"
+					  ItemsSource="{Binding Outpost}"
+					  AutoGenerateColumns="True"
+					  IsReadOnly="True"
+					  SelectionChanged="DataGrid_SelectionOutpost">
+				<!-- Define columns if needed -->
+			</DataGrid>
+
+
+	
+			<!-- DataGrid for File -->
+			<DataGrid Grid.Column="1" Grid.Row="1"
+					  ItemsSource="{Binding File}"
+					  AutoGenerateColumns="True"
+					  IsReadOnly="True">
+				<!-- Define columns if needed -->
+			</DataGrid>
+
 	</Grid>
 </Window>

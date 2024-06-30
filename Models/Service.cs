@@ -62,18 +62,38 @@ namespace HashDog.Models
             using (var context = new Database())
             {
                 var outpost = context.Outposts
-                                            .Select(o => new OutpostEntry
-                                            {
-                                                Id = o.Id,
-                                                CheckPath = o.CheckPath,
-                                                HashType = o.HashType,                                           
-                                                CheckFreqHours= o.CheckFreqHours,
-                                                LastChecked = DateTime.Now,
-                                                Files = o.Files
-                                            })
-                                            .ToList();
+                    .Select(o => new OutpostEntry
+                    {
+                        Id = o.Id,
+                        CheckPath = o.CheckPath,
+                        HashType = o.HashType,                                           
+                        CheckFreqHours= o.CheckFreqHours,
+                        LastChecked = DateTime.Now,
+                        Files = o.Files
+                    })
+                    .ToList();
 
                 return outpost;
+            }
+        }
+
+        public List<FileEntry> ReadOutpostFile(int outpostId)
+        {
+            using (var context = new Database())
+            {
+                var files = context.Files
+                                    .Where(o => o.OutpostEntryId == outpostId).
+                                    Select(f => new FileEntry
+                                    {
+                                        Id = f.Id,
+                                        OutpostEntryId = outpostId,
+                                        OutpostEntry = f.OutpostEntry,
+                                        Path = f.Path,
+                                        Hash = f.Hash,
+                                    })
+                                    .ToList();
+         
+                return files;
             }
         }
 

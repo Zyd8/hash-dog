@@ -25,4 +25,16 @@ public partial class MainWindowView : Window
         _instance.Dispose(); 
         Log.Information("Service Disposed");
     }
+
+    private void DataGrid_SelectionOutpost(object sender, SelectionChangedEventArgs e)
+    {
+        if (sender is DataGrid dataGrid && dataGrid.SelectedItem is OutpostEntry selectedOutpost)
+        {
+            if (DataContext is MainWindowViewModel viewModel)
+            {
+                viewModel.SelectedOutpost = selectedOutpost;
+                Log.Information("SELECT OUTPOST");
+            }
+        }
+    }
 }
