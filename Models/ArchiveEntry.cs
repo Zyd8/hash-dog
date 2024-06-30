@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace HashDog
+namespace HashDog.Models
 {
     public class ArchiveEntry
     {

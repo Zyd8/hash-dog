@@ -17,9 +17,27 @@
 		<StackPanel>
 
 			<StackPanel Margin="20">
-				<TextBlock Margin="0 20">Choose an animal:</TextBlock>
-				<ListBox ItemsSource="{Binding AnimalList}"/>
+				<TextBlock Margin="0 20">Choose your set Outpost:</TextBlock>
+				<ListBox ItemsSource="{Binding Outpost}">
+					<ListBox.ItemTemplate>
+						<DataTemplate>
+							<StackPanel>
+								<TextBlock Text="{Binding Id}" />
+								<TextBlock Text="{Binding CheckPath}" />
+								<TextBlock Text="{Binding HashType}" />
+								<TextBlock Text="{Binding CheckFreqHours}" />
+								<TextBlock Text="{Binding LastChecked}" />
+								<!-- Add additional bindings as needed -->
+							</StackPanel>
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+				</ListBox>
 			</StackPanel>
+
+			<ToggleButton Content="{Binding IsHashDogEnabledText}"
+						 IsChecked="{Binding IsHashDogEnabled, Mode=TwoWay}"
+						 Margin="20"/>
+			
 		</StackPanel>
 	</Grid>
 </Window>
