@@ -3,41 +3,52 @@
         xmlns:vm="using:HashDog.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="450"
         x:Class="HashDog.Views.MainWindowView"
         Title="HashDog"
-		x:DataType="vm:MainWindowViewModel">
+        x:DataType="vm:MainWindowViewModel"
+		Width="1200"
+        Height="600">
 
 	<Design.DataContext>
 		<vm:MainWindowViewModel/>
 	</Design.DataContext>
 
 	<Grid>
-		<!-- Use a Grid or another layout container -->
-		<StackPanel>
+		<!-- Define the columns and rows -->
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="30*"/>
+			<ColumnDefinition Width="70*"/>
+		</Grid.ColumnDefinitions>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="*"/>
+			<RowDefinition Height="Auto"/>
+		</Grid.RowDefinitions>
 
-			<StackPanel Margin="20">
-				<TextBlock Margin="0 20">Choose your set Outpost:</TextBlock>
-				<ListBox ItemsSource="{Binding Outpost}">
-					<ListBox.ItemTemplate>
-						<DataTemplate>
-							<StackPanel>
-								<TextBlock Text="{Binding Id}" />
-								<TextBlock Text="{Binding CheckPath}" />
-								<TextBlock Text="{Binding HashType}" />
-								<TextBlock Text="{Binding CheckFreqHours}" />
-								<TextBlock Text="{Binding LastChecked}" />
-								<!-- Add additional bindings as needed -->
-							</StackPanel>
-						</DataTemplate>
-					</ListBox.ItemTemplate>
-				</ListBox>
-			</StackPanel>
-
+		<!-- ListBox and ToggleButton StackPanel -->
+		<StackPanel Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Margin="20">
+			<TextBlock Margin="0 20">Choose your set Outpost:</TextBlock>
+			<ListBox ItemsSource="{Binding Outpost}">
+				<ListBox.ItemTemplate>
+					<DataTemplate>
+						<StackPanel>
+							<TextBlock Text="{Binding Id}" />
+							<TextBlock Text="{Binding CheckPath}" />
+							<TextBlock Text="{Binding HashType}" />
+							<TextBlock Text="{Binding CheckFreqHours}" />
+							<TextBlock Text="{Binding LastChecked}" />
+						</StackPanel>
+					</DataTemplate>
+				</ListBox.ItemTemplate>
+			</ListBox>
 			<ToggleButton Content="{Binding IsHashDogEnabledText}"
-						 IsChecked="{Binding IsHashDogEnabled, Mode=TwoWay}"
-						 Margin="20"/>
-			
+                          IsChecked="{Binding IsHashDogEnabled, Mode=TwoWay}"
+                          Margin="20"/>
 		</StackPanel>
+
+		<!-- DataGrid in the second column -->
+		<DataGrid Grid.Column="1" Grid.Row="0" ItemsSource="{Binding ItemsSource}" AutoGenerateColumns="True" IsReadOnly="True" >
+			<!-- Define columns if needed -->
+		</DataGrid>
 	</Grid>
 </Window>
