@@ -1,0 +1,25 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:HashDog.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="HashDog.Views.MainWindowView"
+        Title="HashDog"
+		x:DataType="vm:MainWindowViewModel">
+
+	<Design.DataContext>
+		<vm:MainWindowViewModel/>
+	</Design.DataContext>
+
+	<Grid>
+		<!-- Use a Grid or another layout container -->
+		<StackPanel>
+
+			<StackPanel Margin="20">
+				<TextBlock Margin="0 20">Choose an animal:</TextBlock>
+				<ListBox ItemsSource="{Binding AnimalList}"/>
+			</StackPanel>
+		</StackPanel>
+	</Grid>
+</Window>
