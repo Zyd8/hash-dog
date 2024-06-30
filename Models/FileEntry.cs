@@ -1,4 +1,4 @@
-﻿namespace HashDog
+﻿namespace HashDog.Models
 {
     public class FileEntry
     {

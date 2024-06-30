@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace HashDog
+namespace HashDog.Models
 {
     public class Database : DbContext
     {

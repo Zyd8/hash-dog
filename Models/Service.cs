@@ -4,7 +4,7 @@ using System.Threading;
 using System.Linq;
 using Serilog;
 
-namespace HashDog
+namespace HashDog.Models
 {
     public class Service
     {
@@ -33,7 +33,7 @@ namespace HashDog
         }
 
         // adds outpost, all needs to first be added to the outpost before proceeding
-        public void AddOutpost(string outpostPath)
+        public void CreateOutpost(string outpostPath)
         {
             using (var context = new Database())
             { 
@@ -54,6 +54,26 @@ namespace HashDog
                 };
                 context.Outposts.Add(newOutpostEntry);
                 context.SaveChanges();
+            }
+        }
+
+        public List<OutpostEntry> ReadOutpost()
+        {
+            using (var context = new Database())
+            {
+                var outpost = context.Outposts
+                                            .Select(o => new OutpostEntry
+                                            {
+                                                Id = o.Id,
+                                                CheckPath = o.CheckPath,
+                                                HashType = o.HashType,                                           
+                                                CheckFreqHours= o.CheckFreqHours,
+                                                LastChecked = DateTime.Now,
+                                                Files = o.Files
+                                            })
+                                            .ToList();
+
+                return outpost;
             }
         }
 

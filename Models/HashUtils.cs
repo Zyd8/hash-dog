@@ -2,7 +2,7 @@
 using System.IO;
 using System.Security.Cryptography;
 
-namespace HashDog
+namespace HashDog.Models
 {
     public class HashUtils
     {

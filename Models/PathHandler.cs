@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Collections.Generic;
 
-namespace HashDog
+namespace HashDog.Models
 {
     public class PathHandler
     {
