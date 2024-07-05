@@ -37,4 +37,16 @@ public partial class MainWindowView : Window
             }
         }
     }
+
+    private void DataGrid_SelectionOutpostFile(object sender, SelectionChangedEventArgs e)
+    {
+        if (sender is DataGrid dataGrid && dataGrid.SelectedItem is FileEntry selectedOutpostFile)
+        {
+            if (DataContext is MainWindowViewModel viewModel)
+            {
+                viewModel.SelectedOutpostFile = selectedOutpostFile;
+                Log.Information("SELECT OUTPOSTFILE");
+            }
+        }
+    }
 }

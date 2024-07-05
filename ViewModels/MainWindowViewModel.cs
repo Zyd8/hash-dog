@@ -11,21 +11,15 @@ namespace HashDog.ViewModels
     public partial class MainWindowViewModel : ObservableObject
     {
 
+        [ObservableProperty]
         private ObservableCollection<FileEntry> _file;
-        public ObservableCollection<FileEntry> File
-        {
-            get => _file;
-            set => SetProperty(ref _file, value);
-        }
 
+        [ObservableProperty]
         private ObservableCollection<OutpostEntry> _outpost;
-        public ObservableCollection<OutpostEntry> Outpost
-        {
-            get => _outpost;
-            set => SetProperty(ref _outpost, value);
-        }
 
-        public List<ArchiveEntry> Archive { get; }
+        [ObservableProperty]
+        private ObservableCollection<ArchiveEntry> _archive;
+
 
         private readonly Service _instance;
 
@@ -55,22 +49,29 @@ namespace HashDog.ViewModels
             IsHashDogEnabledText = IsHashDogEnabled ? "Disable HashDog" : "Enable HashDog";
         }
 
-        private OutpostEntry _selectedOutpost;
-        public OutpostEntry SelectedOutpost
+        [ObservableProperty]
+        private FileEntry _selectedOutpostFile;
+        partial void OnSelectedOutpostFileChanged(FileEntry value)
         {
-            get { return _selectedOutpost; }
-            set
+            if (value != null)
             {
-                _selectedOutpost = value;
-                if (_selectedOutpost != null)
-                {
-                    File = new ObservableCollection<FileEntry>(_instance.ReadOutpostFile(_selectedOutpost.Id));
-                    Log.Information($"Selected Outpost Id: {_selectedOutpost.Id}");
-                }
-                RaisePropertyChanged(nameof(SelectedOutpost));
+                Archive = new ObservableCollection<ArchiveEntry>(_instance.ReadOutpostFileArchive(SelectedOutpost.Id, value.Id));
+                Log.Information($"Selected Outpost File Id: {value.Id}");
             }
-
         }
+
+        [ObservableProperty]
+        private OutpostEntry _selectedOutpost;
+
+        partial void OnSelectedOutpostChanged(OutpostEntry value)
+        {
+            if (value != null)
+            {
+                File = new ObservableCollection<FileEntry>(_instance.ReadOutpostFile(value.Id));
+                Log.Information($"Selected Outpost Id: {value.Id}");
+            }
+        }
+
 
         public MainWindowViewModel()
         {

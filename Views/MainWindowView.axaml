@@ -8,7 +8,7 @@
         Title="HashDog"
         x:DataType="vm:MainWindowViewModel"
 		Width="1200"
-        Height="800">
+        Height="400">
 
 	<Design.DataContext>
 		<vm:MainWindowViewModel/>
@@ -17,37 +17,23 @@
 	<Grid>
 		<!-- Define the columns and rows -->
 		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="30*"/>
-			<ColumnDefinition Width="70*"/>
+			<ColumnDefinition Width="20*"/>
+			<ColumnDefinition Width="80*"/>
 		</Grid.ColumnDefinitions>
 		<Grid.RowDefinitions>
-			<RowDefinition Height="400"/>
 			<RowDefinition Height="400"/>
 		</Grid.RowDefinitions>
 
 		<!-- ListBox and ToggleButton StackPanel -->
-		<StackPanel Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Margin="20">
-			<TextBlock Margin="0 20">Choose your set Outpost:</TextBlock>
-			<ListBox ItemsSource="{Binding Outpost}">
-				<ListBox.ItemTemplate>
-					<DataTemplate>
-						<StackPanel>
-							<TextBlock Text="{Binding Id}" />
-							<TextBlock Text="{Binding CheckPath}" />
-							<TextBlock Text="{Binding HashType}" />
-							<TextBlock Text="{Binding CheckFreqHours}" />
-							<TextBlock Text="{Binding LastChecked}" />
-						</StackPanel>
-					</DataTemplate>
-				</ListBox.ItemTemplate>
-			</ListBox>
+		<StackPanel Grid.Column="0" Margin="20">
 			<ToggleButton Content="{Binding IsHashDogEnabledText}"
                           IsChecked="{Binding IsHashDogEnabled, Mode=TwoWay}"
                           Margin="20"/>
 		</StackPanel>
 
+		<StackPanel Grid.Column="1">
 			<!-- DataGrid for Outpost -->
-			<DataGrid Grid.Column="1" Grid.Row="0"
+			<DataGrid
 					  ItemsSource="{Binding Outpost}"
 					  AutoGenerateColumns="True"
 					  IsReadOnly="True"
@@ -56,14 +42,24 @@
 			</DataGrid>
 
 
-	
 			<!-- DataGrid for File -->
-			<DataGrid Grid.Column="1" Grid.Row="1"
+			<DataGrid
 					  ItemsSource="{Binding File}"
+					  AutoGenerateColumns="True"
+					  IsReadOnly="True"
+					  SelectionChanged="DataGrid_SelectionOutpostFile">
+				<!-- Define columns if needed -->
+			</DataGrid>
+
+			<!-- DataGrid for File -->
+			<DataGrid
+					  ItemsSource="{Binding Archive}"
 					  AutoGenerateColumns="True"
 					  IsReadOnly="True">
 				<!-- Define columns if needed -->
 			</DataGrid>
+		</StackPanel>
+
 
 	</Grid>
 </Window>

@@ -97,6 +97,30 @@ namespace HashDog.Models
             }
         }
 
+        public List<ArchiveEntry> ReadOutpostFileArchive(int outpostId, int fileID)
+        {
+            using (var context = new Database())
+            {
+                var archives = context.Archives
+                                       .Where(a => a.OutpostEntryId == outpostId && a.FileEntryId == fileID)
+                                       .Select(a => new ArchiveEntry
+                                       {
+                                           Id = a.Id,
+                                           FileEntryId = a.FileEntryId,
+                                           FileEntry = a.FileEntry,
+                                           OutpostEntryId = a.OutpostEntryId,
+                                           OutpostEntry = a.OutpostEntry,
+                                           HashBefore = a.HashBefore,
+                                           HashAfter = a.HashAfter,
+                                           Timestamp = a.Timestamp,
+                                           ComparisonResult = a.ComparisonResult
+                                       })
+                                       .ToList();
+
+                return archives;
+            }
+        }
+
         public void ScheduleRun(OutpostEntry outpostEntry)
         {
             using (var context = new Database())
