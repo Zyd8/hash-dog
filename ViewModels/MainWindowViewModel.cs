@@ -4,25 +4,22 @@ using System.ComponentModel;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using HashDog.Models;
+using HashDog.ViewModels;
+using HashDog.Views;
 using Serilog;
 
 namespace HashDog.ViewModels
 {
     public partial class MainWindowViewModel : ObservableObject
     {
+        
+        private readonly Service _instance;
 
-        [ObservableProperty]
-        private ObservableCollection<FileEntry> _file;
 
         [ObservableProperty]
         private ObservableCollection<OutpostEntry> _outpost;
 
-        [ObservableProperty]
-        private ObservableCollection<ArchiveEntry> _archive;
-
-
-        private readonly Service _instance;
-
+        
         [ObservableProperty]
         private bool _isHashDogEnabled;
 
@@ -49,16 +46,7 @@ namespace HashDog.ViewModels
             IsHashDogEnabledText = IsHashDogEnabled ? "Disable HashDog" : "Enable HashDog";
         }
 
-        [ObservableProperty]
-        private FileEntry _selectedOutpostFile;
-        partial void OnSelectedOutpostFileChanged(FileEntry value)
-        {
-            if (value != null)
-            {
-                Archive = new ObservableCollection<ArchiveEntry>(_instance.ReadOutpostFileArchive(SelectedOutpost.Id, value.Id));
-                Log.Information($"Selected Outpost File Id: {value.Id}");
-            }
-        }
+
 
         [ObservableProperty]
         private OutpostEntry _selectedOutpost;
@@ -67,15 +55,30 @@ namespace HashDog.ViewModels
         {
             if (value != null)
             {
-                File = new ObservableCollection<FileEntry>(_instance.ReadOutpostFile(value.Id));
+                var outpostFileViewModel = new OutpostFileViewModel(value.Id)
+                {
+                    File = new ObservableCollection<FileEntry>(_instance.ReadOutpostFile(value.Id))
+                };
+
+                var outpostFileView = new OutpostFileView(outpostFileViewModel);
+                outpostFileView.Show();
+
+
                 Log.Information($"Selected Outpost Id: {value.Id}");
             }
+        }
+
+        public int GetSelectedOutpostId()
+        {
+            return SelectedOutpost.Id;
         }
 
 
         public MainWindowViewModel()
         {
             _instance = Service.Instance;
+
+
             Outpost = new ObservableCollection<OutpostEntry>(_instance.ReadOutpost());
 
         }
@@ -84,12 +87,6 @@ namespace HashDog.ViewModels
         {
             _instance.CreateOutpost(_instance.GetNewOutpostPath());
             _instance.CreateOutpost(@"C:\Users\Zyd\testing\outpost2");
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected virtual void RaisePropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

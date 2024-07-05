@@ -41,23 +41,6 @@
 				<!-- Define columns if needed -->
 			</DataGrid>
 
-
-			<!-- DataGrid for File -->
-			<DataGrid
-					  ItemsSource="{Binding File}"
-					  AutoGenerateColumns="True"
-					  IsReadOnly="True"
-					  SelectionChanged="DataGrid_SelectionOutpostFile">
-				<!-- Define columns if needed -->
-			</DataGrid>
-
-			<!-- DataGrid for File -->
-			<DataGrid
-					  ItemsSource="{Binding Archive}"
-					  AutoGenerateColumns="True"
-					  IsReadOnly="True">
-				<!-- Define columns if needed -->
-			</DataGrid>
 		</StackPanel>
 
 
