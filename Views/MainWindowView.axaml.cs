@@ -3,7 +3,6 @@ using HashDog.ViewModels;
 using System;
 using Serilog;
 using HashDog.Models;
-using Avalonia;
 
 
 namespace HashDog.Views;
@@ -15,6 +14,7 @@ public partial class MainWindowView : Window
         InitializeComponent();
 
         this.DataContext = new MainWindowViewModel();      
+    
         this.Closed += OnWindowClosed;
     }
 
@@ -33,10 +33,20 @@ public partial class MainWindowView : Window
             if (DataContext is MainWindowViewModel viewModel)
             {
                 viewModel.SelectedOutpost = selectedOutpost;
-
                 Log.Information("SELECT OUTPOST");
             }
         }
     }
 
+    private void DataGrid_SelectionOutpostFile(object sender, SelectionChangedEventArgs e)
+    {
+        if (sender is DataGrid dataGrid && dataGrid.SelectedItem is FileEntry selectedOutpostFile)
+        {
+            if (DataContext is MainWindowViewModel viewModel)
+            {
+                viewModel.SelectedOutpostFile = selectedOutpostFile;
+                Log.Information("SELECT OUTPOSTFILE");
+            }
+        }
+    }
 }

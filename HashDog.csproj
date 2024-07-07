@@ -36,11 +36,5 @@
     <Compile Update="Views\MainWindowView.axaml.cs">
       <DependentUpon>MainWindowView.axaml</DependentUpon>
     </Compile>
-    <Compile Update="Views\OutpostFileView.axaml.cs">
-      <DependentUpon>OutpostFileView.axaml</DependentUpon>
-    </Compile>
-    <Compile Update="Views\OutpostFileArchiveView.axaml.cs">
-      <DependentUpon>OutpostFileArchiveView.axaml</DependentUpon>
-    </Compile>
   </ItemGroup>
 </Project>
