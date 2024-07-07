@@ -110,7 +110,15 @@
 
 			<TabControl Grid.Column="0" Grid.Row="1">
 				<TabItem Header="Mismatch Archive" Margin="0,20,0,20">
-				
+					<DataGrid ItemsSource="{Binding MismatchArchive}"
+							  CanUserReorderColumns="True"
+							  CanUserResizeColumns="True"
+							  AutoGenerateColumns="True"
+							  GridLinesVisibility="All"
+							  IsReadOnly="True"
+							  SelectionChanged="DataGrid_SelectionMismatchArchive">
+
+					</DataGrid>
 				</TabItem>
 			</TabControl>
 			

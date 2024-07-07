@@ -49,4 +49,16 @@ public partial class MainWindowView : Window
             }
         }
     }
+
+    private void DataGrid_SelectionMismatchArchive(object sender, SelectionChangedEventArgs e)
+    {
+        if (sender is DataGrid dataGrid && dataGrid.SelectedItem is MismatchArchiveEntry selectedMismatchArchive)
+        {
+            if (DataContext is MainWindowViewModel viewModel)
+            {
+                viewModel.SelectedMismatchArchive = selectedMismatchArchive;
+                Log.Information("SELECT MISMATCHARCHIVE");
+            }
+        }
+    }
 }

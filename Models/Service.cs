@@ -82,43 +82,77 @@ namespace HashDog.Models
             using (var context = new Database())
             {
                 var files = context.Files
-                                    .Where(o => o.OutpostEntryId == outpostId).
-                                    Select(f => new FileEntry
-                                    {
-                                        Id = f.Id,
-                                        OutpostEntryId = outpostId,
-                                        OutpostEntry = f.OutpostEntry,
-                                        Path = f.Path,
-                                        Hash = f.Hash,
-                                    })
-                                    .ToList();
+                    .Where(o => o.OutpostEntryId == outpostId).
+                    Select(f => new FileEntry
+                    {
+                        Id = f.Id,
+                        OutpostEntryId = outpostId,
+                        OutpostEntry = f.OutpostEntry,
+                        Path = f.Path,
+                        Hash = f.Hash,
+                    })
+                    .ToList();
          
                 return files;
             }
         }
 
-        public List<ArchiveEntry> ReadOutpostFileArchive(int outpostId, int fileID)
+        public List<ArchiveEntry> ReadOutpostFileArchive(int outpostId, int fileId)
         {
             using (var context = new Database())
             {
                 var archives = context.Archives
-                                       .Where(a => a.OutpostEntryId == outpostId && a.FileEntryId == fileID)
-                                       .Select(a => new ArchiveEntry
-                                       {
-                                           Id = a.Id,
-                                           FileEntryId = a.FileEntryId,
-                                           FileEntry = a.FileEntry,
-                                           OutpostEntryId = a.OutpostEntryId,
-                                           OutpostEntry = a.OutpostEntry,
-                                           HashBefore = a.HashBefore,
-                                           HashAfter = a.HashAfter,
-                                           Timestamp = a.Timestamp,
-                                           ComparisonResult = a.ComparisonResult
-                                       })
-                                       .ToList();
+                    .Where(a => a.OutpostEntryId == outpostId && a.FileEntryId == fileId)
+                    .Select(a => new ArchiveEntry
+                    {
+                        Id = a.Id,
+                        FileEntryId = a.FileEntryId,
+                        FileEntry = a.FileEntry,
+                        OutpostEntryId = a.OutpostEntryId,
+                        OutpostEntry = a.OutpostEntry,
+                        HashBefore = a.HashBefore,
+                        HashAfter = a.HashAfter,
+                        Timestamp = a.Timestamp,
+                        ComparisonResult = a.ComparisonResult
+                    })
+                    .ToList();
 
                 return archives;
             }
+        }
+
+        public List<MismatchArchiveEntry> ReadMismatchArchive()
+        {
+            List<MismatchArchiveEntry> mismatchEntries = new List<MismatchArchiveEntry>();
+
+            using (var context = new Database())
+            {
+                var archiveEntries = context.Archives
+                    .Where(entry => entry.ComparisonResult == "Mismatch")
+                    .ToList();
+
+                foreach (var entry in archiveEntries)
+                {
+                    var fileEntry = context.Files.FirstOrDefault(fe => fe.Id == entry.FileEntryId);
+                    string path = fileEntry?.Path ?? "Unknown"; 
+
+                    var mismatchEntry = new MismatchArchiveEntry
+                    {
+                        Id = entry.Id,
+                        HashBefore = entry.HashBefore,
+                        HashAfter = entry.HashAfter,
+                        Timestamp = entry.Timestamp,
+                        FileEntryId = entry.FileEntryId,
+                        OutpostEntryId = entry.OutpostEntryId,
+                        Path = path
+                    };
+
+                    mismatchEntries.Add(mismatchEntry);
+                }
+            }
+
+            return mismatchEntries;
+            
         }
 
         public void ScheduleRun(OutpostEntry outpostEntry)

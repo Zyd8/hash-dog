@@ -13,7 +13,6 @@ namespace HashDog.ViewModels
 
         private readonly Service _instance;
 
-
         [ObservableProperty]
         private ObservableCollection<FileEntry> _file;
 
@@ -22,6 +21,9 @@ namespace HashDog.ViewModels
 
         [ObservableProperty]
         private ObservableCollection<ArchiveEntry> _archive;
+
+        [ObservableProperty]
+        private ObservableCollection<MismatchArchiveEntry> _mismatchArchive;
 
         [ObservableProperty]
         private int _topSelectedTabIndex;
@@ -87,17 +89,30 @@ namespace HashDog.ViewModels
             }
         }
 
+        [ObservableProperty]
+        private MismatchArchiveEntry _selectedMismatchArchive;
+        partial void OnSelectedMismatchArchiveChanged(MismatchArchiveEntry value)
+        {
+            if (value != null)
+            {
+                Archive = new ObservableCollection<ArchiveEntry>(_instance.ReadOutpostFileArchive(value.OutpostEntryId, value.FileEntryId));
+                TopSelectedTabIndex = 2;
+            }
+        }
+
 
         public MainWindowViewModel()
         {
             _instance = Service.Instance;
             Outpost = new ObservableCollection<OutpostEntry>(_instance.ReadOutpost());
+            MismatchArchive = new ObservableCollection<MismatchArchiveEntry>(_instance.ReadMismatchArchive()); 
 
         }
 
         public void OnAddOutpostClick()
         {
             _instance.CreateOutpost(_instance.GetNewOutpostPath());
+
             _instance.CreateOutpost(@"C:\Users\Zyd\testing\outpost2");
         }
 
