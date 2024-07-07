@@ -11,6 +11,9 @@ namespace HashDog.ViewModels
     public partial class MainWindowViewModel : ObservableObject
     {
 
+        private readonly Service _instance;
+
+
         [ObservableProperty]
         private ObservableCollection<FileEntry> _file;
 
@@ -20,8 +23,16 @@ namespace HashDog.ViewModels
         [ObservableProperty]
         private ObservableCollection<ArchiveEntry> _archive;
 
-
-        private readonly Service _instance;
+        [ObservableProperty]
+        private int _topSelectedTabIndex;
+        partial void OnTopSelectedTabIndexChanged(int value)
+        {
+            if (value == 0)
+            {
+                File = new ObservableCollection<FileEntry>(); 
+                Archive = new ObservableCollection<ArchiveEntry>();
+            }
+        }
 
         [ObservableProperty]
         private bool _isHashDogEnabled;
@@ -49,16 +60,6 @@ namespace HashDog.ViewModels
             IsHashDogEnabledText = IsHashDogEnabled ? "Disable HashDog" : "Enable HashDog";
         }
 
-        [ObservableProperty]
-        private FileEntry _selectedOutpostFile;
-        partial void OnSelectedOutpostFileChanged(FileEntry value)
-        {
-            if (value != null)
-            {
-                Archive = new ObservableCollection<ArchiveEntry>(_instance.ReadOutpostFileArchive(SelectedOutpost.Id, value.Id));
-                Log.Information($"Selected Outpost File Id: {value.Id}");
-            }
-        }
 
         [ObservableProperty]
         private OutpostEntry _selectedOutpost;
@@ -69,6 +70,20 @@ namespace HashDog.ViewModels
             {
                 File = new ObservableCollection<FileEntry>(_instance.ReadOutpostFile(value.Id));
                 Log.Information($"Selected Outpost Id: {value.Id}");
+                TopSelectedTabIndex = 1;
+            }
+        }
+
+
+        [ObservableProperty]
+        private FileEntry _selectedOutpostFile;
+        partial void OnSelectedOutpostFileChanged(FileEntry value)
+        {
+            if (value != null)
+            {
+                Archive = new ObservableCollection<ArchiveEntry>(_instance.ReadOutpostFileArchive(SelectedOutpost.Id, value.Id));
+                Log.Information($"Selected Outpost File Id: {value.Id}");
+                TopSelectedTabIndex = 2;
             }
         }
 

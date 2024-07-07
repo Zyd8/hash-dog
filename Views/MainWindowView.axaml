@@ -7,59 +7,114 @@
         x:Class="HashDog.Views.MainWindowView"
         Title="HashDog"
         x:DataType="vm:MainWindowViewModel"
-		Width="1200"
-        Height="400">
+		Width="1000"
+        Height="400"
+		WindowState="Maximized">
 
 	<Design.DataContext>
 		<vm:MainWindowViewModel/>
 	</Design.DataContext>
 
-	<Grid>
-		<!-- Define the columns and rows -->
+	<Grid Margin="0,20,0,20">
+
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="20*"/>
 			<ColumnDefinition Width="80*"/>
 		</Grid.ColumnDefinitions>
 		<Grid.RowDefinitions>
-			<RowDefinition Height="400"/>
+			<RowDefinition Height="*"/>
 		</Grid.RowDefinitions>
 
 		<!-- ListBox and ToggleButton StackPanel -->
-		<StackPanel Grid.Column="0" Margin="20">
+		<StackPanel Grid.Column="0" Margin="20" HorizontalAlignment="Center" VerticalAlignment="Center">
 			<ToggleButton Content="{Binding IsHashDogEnabledText}"
-                          IsChecked="{Binding IsHashDogEnabled, Mode=TwoWay}"
-                          Margin="20"/>
-		</StackPanel>
-
-		<StackPanel Grid.Column="1">
-			<!-- DataGrid for Outpost -->
-			<DataGrid
-					  ItemsSource="{Binding Outpost}"
-					  AutoGenerateColumns="True"
-					  IsReadOnly="True"
-					  SelectionChanged="DataGrid_SelectionOutpost">
-				<!-- Define columns if needed -->
-			</DataGrid>
-
-
-			<!-- DataGrid for File -->
-			<DataGrid
-					  ItemsSource="{Binding File}"
-					  AutoGenerateColumns="True"
-					  IsReadOnly="True"
-					  SelectionChanged="DataGrid_SelectionOutpostFile">
-				<!-- Define columns if needed -->
-			</DataGrid>
-
-			<!-- DataGrid for File -->
-			<DataGrid
-					  ItemsSource="{Binding Archive}"
-					  AutoGenerateColumns="True"
-					  IsReadOnly="True">
-				<!-- Define columns if needed -->
-			</DataGrid>
+						  IsChecked="{Binding IsHashDogEnabled, Mode=TwoWay}"
+						  Margin="20"/>
 		</StackPanel>
 
 
+		<Grid Grid.Column="1">
+
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*"/>
+			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="50*"/>
+				<RowDefinition Height="50*"/>
+			</Grid.RowDefinitions>
+		
+			<!-- TabControl for DataGrids -->
+			<TabControl Grid.Column="0" Grid.Row="0" SelectedIndex="{Binding TopSelectedTabIndex}">
+				<!-- Tab for Outpost DataGrid -->
+				<TabItem Header="Outpost" Margin="0,20,0,20">
+					<DataGrid ItemsSource="{Binding Outpost}"
+							  CanUserReorderColumns="True"
+							  CanUserResizeColumns="True"
+							  AutoGenerateColumns="False"
+							  GridLinesVisibility="All"
+							  IsReadOnly="True"
+							  SelectionChanged="DataGrid_SelectionOutpost">
+
+						<DataGrid.Columns>
+							<DataGridTextColumn Header="Id" Binding="{Binding Id}" />
+							<DataGridTextColumn Header="Outpost Path" Binding="{Binding CheckPath}" Width="400"/>
+							<DataGridTextColumn Header="Check Frequency (hours)" Binding="{Binding CheckFreqHours}" />
+							<DataGridTextColumn Header="Last Checked" Binding="{Binding LastChecked}" />
+						</DataGrid.Columns>
+					
+					</DataGrid>
+				</TabItem>
+
+				<!-- Tab for File DataGrid -->
+				<TabItem Header="File" Margin="0,20,0,20">
+					<DataGrid ItemsSource="{Binding File}"
+							  CanUserReorderColumns="True"
+							  CanUserResizeColumns="True"
+							  AutoGenerateColumns="False"
+							  GridLinesVisibility="All"              
+							  IsReadOnly="True"
+							  SelectionChanged="DataGrid_SelectionOutpostFile">
+
+						<DataGrid.Columns>
+							<DataGridTextColumn Header="Id" Binding="{Binding Id}" />
+							<DataGridTextColumn Header="File Path" Binding="{Binding Path}" Width="400"/>
+							<DataGridTextColumn Header="Hash" Binding="{Binding Hash}" />
+							<DataGridTextColumn Header="Outpost Id" Binding="{Binding OutpostEntryId}" />
+						</DataGrid.Columns>
+					
+					</DataGrid>
+				</TabItem>
+
+				<!-- Tab for Archive DataGrid -->
+				<TabItem Header="Archive" Margin="0,20,0,20">
+					<DataGrid ItemsSource="{Binding Archive}"
+							  CanUserReorderColumns="True"
+							  CanUserResizeColumns="True"
+							  AutoGenerateColumns="False"
+							  GridLinesVisibility="All"     
+							  IsReadOnly="True">
+
+						<DataGrid.Columns>
+							<DataGridTextColumn Header="Id" Binding="{Binding Id}" />
+							<DataGridTextColumn Header="Comparison" Binding="{Binding ComparisonResult}" />
+							<DataGridTextColumn Header="Hash Before" Binding="{Binding HashBefore}" Width="400" />
+							<DataGridTextColumn Header="Hash After" Binding="{Binding HashAfter}"  Width="400"/>
+							<DataGridTextColumn Header="Timestamp" Binding="{Binding Timestamp}" />
+							<DataGridTextColumn Header="File Id" Binding="{Binding FileEntryId}" />
+							<DataGridTextColumn Header="Outpost Id" Binding="{Binding OutpostEntryId}" />
+						</DataGrid.Columns>
+					
+					</DataGrid>
+				</TabItem>
+			</TabControl>
+
+			<TabControl Grid.Column="0" Grid.Row="1">
+				<TabItem Header="Mismatch Archive" Margin="0,20,0,20">
+				
+				</TabItem>
+			</TabControl>
+			
+			
+		</Grid>
 	</Grid>
 </Window>
