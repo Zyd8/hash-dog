@@ -3,6 +3,7 @@ using HashDog.ViewModels;
 using System;
 using Serilog;
 using HashDog.Models;
+using Avalonia.Interactivity;
 
 
 namespace HashDog.Views;
@@ -61,5 +62,13 @@ public partial class MainWindowView : Window
                 Log.Information("SELECT MISMATCHARCHIVE");
             }
         }
+    }
+
+    public void ClickRefreshDataGrids(object sender, RoutedEventArgs args)
+    {
+        if (DataContext is MainWindowViewModel viewModel)
+        {
+            viewModel.RefreshDataGrids();
+        }              
     }
 }

@@ -30,6 +30,12 @@
 			<ToggleButton Content="{Binding IsHashDogEnabledText}"
 						  IsChecked="{Binding IsHashDogEnabled, Mode=TwoWay}"
 						  Margin="20"/>
+
+			<Button Content="Refresh"
+					Click="ClickRefreshDataGrids"
+					Margin="20">
+			</Button>
+			
 		</StackPanel>
 
 

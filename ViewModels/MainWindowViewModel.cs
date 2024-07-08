@@ -6,6 +6,10 @@ using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using HashDog.Models;
 using Serilog;
+using System.Timers;
+using CommunityToolkit.Mvvm.Input;
+using System.Windows.Input;
+using Avalonia.Interactivity;
 
 namespace HashDog.ViewModels
 {
@@ -32,7 +36,7 @@ namespace HashDog.ViewModels
         {
             if (value == 0)
             {
-                File = new ObservableCollection<FileEntry>(); 
+                File = new ObservableCollection<FileEntry>();
                 Archive = new ObservableCollection<ArchiveEntry>();
             }
         }
@@ -71,7 +75,7 @@ namespace HashDog.ViewModels
         {
             if (value != null)
             {
-                File = new ObservableCollection<FileEntry>(_instance.ReadOutpostFile(value.Id));
+                LoadOutpostFile(value);
                 Log.Information($"Selected Outpost Id: {value.Id}");
                 TopSelectedTabIndex = 1;
             }
@@ -84,7 +88,7 @@ namespace HashDog.ViewModels
         {
             if (value != null)
             {
-                Archive = new ObservableCollection<ArchiveEntry>(_instance.ReadOutpostFileArchive(SelectedOutpost.Id, value.Id));
+                LoadOutpostFileArchive(value);
                 Log.Information($"Selected Outpost File Id: {value.Id}");
                 TopSelectedTabIndex = 2;
             }
@@ -96,7 +100,7 @@ namespace HashDog.ViewModels
         {
             if (value != null)
             {
-                Archive = new ObservableCollection<ArchiveEntry>(_instance.ReadOutpostFileArchive(value.OutpostEntryId, value.FileEntryId));
+                LoadArchiveViaMismatchArchive(value);
                 TopSelectedTabIndex = 2;
             }
         }
@@ -105,13 +109,56 @@ namespace HashDog.ViewModels
         public MainWindowViewModel()
         {
             _instance = Service.Instance;
+
+            LoadOutpost();
+            LoadMismatchArchive();
+
+        }
+
+        public void RefreshDataGrids()
+        {
+            if (IsHashDogEnabled)
+            {
+                LoadOutpost();
+                LoadMismatchArchive();
+                if (SelectedOutpost != null)
+                {
+                    LoadOutpostFile(SelectedOutpost);
+                }
+                if (SelectedOutpostFile != null)
+                {
+                    LoadOutpostFileArchive(SelectedOutpostFile);
+                }
+            }
+        }
+
+
+        public void LoadOutpost()
+        {
             Outpost = new ObservableCollection<OutpostEntry>(_instance.ReadOutpost());
+        }
 
+        public void LoadMismatchArchive()
+        {
             var mismatchEntries = _instance.ReadMismatchArchive()
-                                          .OrderByDescending(entry => entry.Timestamp)
-                                          .ToList();
+                              .OrderByDescending(entry => entry.Timestamp)
+                              .ToList();
             MismatchArchive = new ObservableCollection<MismatchArchiveEntry>(mismatchEntries);
+        }
 
+        public void LoadOutpostFile(OutpostEntry outpost)
+        {
+            File = new ObservableCollection<FileEntry>(_instance.ReadOutpostFile(outpost.Id));
+        }
+
+        public void LoadOutpostFileArchive(FileEntry file)
+        {
+            Archive = new ObservableCollection<ArchiveEntry>(_instance.ReadOutpostFileArchive(SelectedOutpost.Id, file.Id));
+        }
+
+        public void LoadArchiveViaMismatchArchive(MismatchArchiveEntry mismatchArchive)
+        {
+            Archive = new ObservableCollection<ArchiveEntry>(_instance.ReadOutpostFileArchive(mismatchArchive.OutpostEntryId, mismatchArchive.FileEntryId));
         }
 
         public void OnAddOutpostClick()
@@ -120,11 +167,6 @@ namespace HashDog.ViewModels
 
             _instance.CreateOutpost(@"C:\Users\Zyd\testing\outpost2");
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected virtual void RaisePropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
     }
 }
+
