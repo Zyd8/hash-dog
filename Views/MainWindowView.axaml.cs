@@ -18,6 +18,7 @@ public partial class MainWindowView : Window
         this.Closed += OnWindowClosed;
     }
 
+
     // for testing purposes only
     private void OnWindowClosed(object? sender, EventArgs e)
     {

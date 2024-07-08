@@ -25,7 +25,7 @@
 			<RowDefinition Height="*"/>
 		</Grid.RowDefinitions>
 
-		<!-- ListBox and ToggleButton StackPanel -->
+
 		<StackPanel Grid.Column="0" Margin="20" HorizontalAlignment="Center" VerticalAlignment="Center">
 			<ToggleButton Content="{Binding IsHashDogEnabledText}"
 						  IsChecked="{Binding IsHashDogEnabled, Mode=TwoWay}"
@@ -43,9 +43,9 @@
 				<RowDefinition Height="50*"/>
 			</Grid.RowDefinitions>
 		
-			<!-- TabControl for DataGrids -->
+			
 			<TabControl Grid.Column="0" Grid.Row="0" SelectedIndex="{Binding TopSelectedTabIndex}">
-				<!-- Tab for Outpost DataGrid -->
+				
 				<TabItem Header="Outpost" Margin="0,20,0,20">
 					<DataGrid ItemsSource="{Binding Outpost}"
 							  CanUserReorderColumns="True"
@@ -58,6 +58,7 @@
 						<DataGrid.Columns>
 							<DataGridTextColumn Header="Id" Binding="{Binding Id}" />
 							<DataGridTextColumn Header="Outpost Path" Binding="{Binding CheckPath}" Width="400"/>
+							<DataGridTextColumn Header="Hash Algorithm" Binding="{Binding HashType}"/>
 							<DataGridTextColumn Header="Check Frequency (hours)" Binding="{Binding CheckFreqHours}" />
 							<DataGridTextColumn Header="Last Checked" Binding="{Binding LastChecked}" />
 						</DataGrid.Columns>
@@ -65,7 +66,7 @@
 					</DataGrid>
 				</TabItem>
 
-				<!-- Tab for File DataGrid -->
+			
 				<TabItem Header="File" Margin="0,20,0,20">
 					<DataGrid ItemsSource="{Binding File}"
 							  CanUserReorderColumns="True"
@@ -85,7 +86,7 @@
 					</DataGrid>
 				</TabItem>
 
-				<!-- Tab for Archive DataGrid -->
+			
 				<TabItem Header="Archive" Margin="0,20,0,20">
 					<DataGrid ItemsSource="{Binding Archive}"
 							  CanUserReorderColumns="True"
@@ -110,13 +111,23 @@
 
 			<TabControl Grid.Column="0" Grid.Row="1">
 				<TabItem Header="Mismatch Archive" Margin="0,20,0,20">
-					<DataGrid ItemsSource="{Binding MismatchArchive}"
+					<DataGrid ItemsSource="{Binding MismatchArchive}"						 
 							  CanUserReorderColumns="True"
 							  CanUserResizeColumns="True"
-							  AutoGenerateColumns="True"
+							  AutoGenerateColumns="False"
 							  GridLinesVisibility="All"
 							  IsReadOnly="True"
 							  SelectionChanged="DataGrid_SelectionMismatchArchive">
+
+						<DataGrid.Columns>
+							<DataGridTextColumn Header="Id" Binding="{Binding Id}" />
+							<DataGridTextColumn Header="File Path" Binding="{Binding Path}" Width="400"/>
+							<DataGridTextColumn Header="Timestamp" Binding="{Binding Timestamp}" />
+							<DataGridTextColumn Header="Hash Before" Binding="{Binding HashBefore}" Width="400"/>
+							<DataGridTextColumn Header="Hash After" Binding="{Binding HashAfter}" Width="400"/>	
+							<DataGridTextColumn Header="File Id" Binding="{Binding FileEntryId}" />
+							<DataGridTextColumn Header="Outpost Id" Binding="{Binding OutpostEntryId}" />
+						</DataGrid.Columns>
 
 					</DataGrid>
 				</TabItem>

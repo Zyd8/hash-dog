@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using HashDog.Models;
@@ -105,7 +106,11 @@ namespace HashDog.ViewModels
         {
             _instance = Service.Instance;
             Outpost = new ObservableCollection<OutpostEntry>(_instance.ReadOutpost());
-            MismatchArchive = new ObservableCollection<MismatchArchiveEntry>(_instance.ReadMismatchArchive()); 
+
+            var mismatchEntries = _instance.ReadMismatchArchive()
+                                          .OrderByDescending(entry => entry.Timestamp)
+                                          .ToList();
+            MismatchArchive = new ObservableCollection<MismatchArchiveEntry>(mismatchEntries);
 
         }
 

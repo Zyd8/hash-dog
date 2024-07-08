@@ -41,7 +41,7 @@ namespace HashDog.Models
                 var existingOutpost = context.Outposts.FirstOrDefault(o => o.CheckPath == outpostPath);
                 if (existingOutpost != null)
                 {
-                    Console.WriteLine($"Outpost with CheckPath '{outpostPath}' already exists.");
+                    Log.Information($"Outpost with CheckPath '{outpostPath}' already exists.");
                     return; 
                 }
 
