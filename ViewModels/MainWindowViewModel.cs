@@ -10,6 +10,7 @@ using System.Timers;
 using CommunityToolkit.Mvvm.Input;
 using System.Windows.Input;
 using Avalonia.Interactivity;
+using System;
 
 namespace HashDog.ViewModels
 {
@@ -104,6 +105,9 @@ namespace HashDog.ViewModels
                 TopSelectedTabIndex = 2;
             }
         }
+
+        [ObservableProperty]
+        private string _folderPath_Text = "...";
 
 
         public MainWindowViewModel()

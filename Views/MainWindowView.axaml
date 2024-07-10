@@ -3,12 +3,12 @@
         xmlns:vm="using:HashDog.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="450"
+        mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="1080"
         x:Class="HashDog.Views.MainWindowView"
         Title="HashDog"
         x:DataType="vm:MainWindowViewModel"
-		Width="1000"
-        Height="400"
+		Width="1920"
+        Height="1080"
 		WindowState="Maximized">
 
 	<Design.DataContext>
@@ -22,24 +22,59 @@
 			<ColumnDefinition Width="80*"/>
 		</Grid.ColumnDefinitions>
 		<Grid.RowDefinitions>
-			<RowDefinition Height="*"/>
+			<RowDefinition Height="30*"/>
+			<RowDefinition Height="70*"/>
 		</Grid.RowDefinitions>
 
 
-		<StackPanel Grid.Column="0" Margin="20" HorizontalAlignment="Center" VerticalAlignment="Center">
+		<StackPanel Grid.Column="0" Grid.Row="0" Margin="20" HorizontalAlignment="Center" VerticalAlignment="Center">
+			
 			<ToggleButton Content="{Binding IsHashDogEnabledText}"
 						  IsChecked="{Binding IsHashDogEnabled, Mode=TwoWay}"
 						  Margin="20"/>
 
 			<Button Content="Refresh"
-					Click="ClickRefreshDataGrids"
+					Click="RefreshDataGrids_Click"
 					Margin="20">
 			</Button>
 			
 		</StackPanel>
 
+		<StackPanel Grid.Column="0" Grid.Row="1" Margin="10" HorizontalAlignment="Center" VerticalAlignment="Center">
 
-		<Grid Grid.Column="1">
+			<!-- Select Folder Button and TextBox -->
+			<StackPanel Orientation="Vertical" Margin="10">
+				<Button Content="Select Folder" Click="SelectFolder_Click" Margin="0,0,0,10"/>
+				<TextBox Padding="10" IsReadOnly="True" Text="{Binding FolderPath_Text}" IsEnabled="True" ToolTip.Tip="{Binding FolderPath_Text}" Focusable="False"/>
+			</StackPanel>
+
+			<!-- Check Frequency -->
+			<StackPanel Orientation="Horizontal" Margin="10">
+				<TextBlock VerticalAlignment="Center" Margin="0,0,10,0">Check Frequency (Hours):</TextBlock>
+				<NumericUpDown Value="0" Increment="1" FormatString="0" Minimum="0"/>
+			</StackPanel>
+
+			<!-- Hash Algorithm -->
+			<StackPanel Orientation="Horizontal" Margin="10">
+				<TextBlock VerticalAlignment="Center" Margin="0,0,10,0">Hash Algorithm:</TextBlock>
+				<ComboBox Width="100" SelectedIndex="0">
+					<ComboBoxItem Content="MD5"/>
+					<ComboBoxItem Content="SHA1"/>
+					<ComboBoxItem Content="SHA256"/>
+					<ComboBoxItem Content="SHA512"/>
+				</ComboBox>
+			</StackPanel>
+
+			<!-- Add Outpost Button -->
+			<Button Content="Add Outpost"
+					Click="AddOutpost_Click"
+					Margin="10,10,10,20"/>
+		</StackPanel>
+
+
+
+
+		<Grid Grid.Column="1" Grid.RowSpan="2">
 
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="*"/>

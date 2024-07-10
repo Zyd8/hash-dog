@@ -1,15 +1,29 @@
 ﻿using System.IO;
 using System.Collections.Generic;
+using System;
 
 namespace HashDog.Models
 {
     public class PathHandler
     {
 
-
         public static List<string> GetPathFiles(string path)
         {
             List<string> files = new List<string>();
+
+            if (path.StartsWith("file:///"))
+            {
+                string localPath = new Uri(path).LocalPath;
+
+                if (File.Exists(localPath))
+                {
+                    files.Add(localPath);
+                }
+                else
+                {
+                    files.AddRange(GetFilesRecursive(localPath));
+                }
+            }
 
             if (File.Exists(path))
             {
