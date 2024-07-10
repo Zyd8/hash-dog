@@ -58,6 +58,8 @@ namespace HashDog.Models
                 };
                 context.Outposts.Add(newOutpostEntry);
                 context.SaveChanges();
+
+                Run(newOutpostEntry);
             }
         }
 
@@ -172,7 +174,7 @@ namespace HashDog.Models
             
         }
 
-        public void ScheduleRun(OutpostEntry outpostEntry)
+        public void Run(OutpostEntry outpostEntry)
         {
             using (var context = new Database())
             {
@@ -312,7 +314,7 @@ namespace HashDog.Models
 
         private void ScheduleRun(object? state)
         {
-            Service.ScheduleRun(Outpost);
+            Service.Run(Outpost);
             SetNextRunTimeSchedule();
 
         }

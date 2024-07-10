@@ -220,7 +220,8 @@ namespace HashDog.ViewModels
             {
                 _instance.CreateOutpost(FolderPath_Text, HashType.SHA512, checkFreqHours_Value);
             }
-            
+    
+            RefreshDataGrids();
         }
     }
 }
