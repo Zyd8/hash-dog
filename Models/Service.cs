@@ -32,7 +32,11 @@ namespace HashDog.Models
             }
         }
 
-        // adds outpost, all needs to first be added to the outpost before proceeding
+        public static bool IsSchedulerRunning()
+        {
+            return Scheduler.IsRunning;
+        }
+
         public void CreateOutpost(string outpostPath)
         {
             using (var context = new Database())
@@ -273,8 +277,11 @@ namespace HashDog.Models
 
         private Timer? _timer;
 
+        public static bool IsRunning;
+
         public Scheduler(OutpostEntry outpost, Service service)
         {
+            IsRunning = true;
             Outpost = outpost;
             Service = service;
 
@@ -283,15 +290,12 @@ namespace HashDog.Models
 
         private void SetNextRunTimeSchedule()
         {
-            // Set the next run time
+           
             NextRunTime = Outpost.LastChecked.AddSeconds(Outpost.CheckFreqHours); // Change seconds to hour after testing
-            Console.WriteLine($"Next run time {NextRunTime}");
 
-            // Calculate the interval until the next run time
             TimeSpan interval = NextRunTime - DateTime.Now;
             if (interval < TimeSpan.Zero) interval = TimeSpan.Zero;
 
-            // Initialize or change the timer
             if (_timer == null)
             {
                 _timer = new Timer(ScheduleRun, null, interval, Timeout.InfiniteTimeSpan);
@@ -303,7 +307,6 @@ namespace HashDog.Models
             Log.Information("Changing schedules");
         }
 
-        // Runs on set schedule, checks for untracked files and insert it, or update tracked files
         private void ScheduleRun(object? state)
         {
             Service.ScheduleRun(Outpost);

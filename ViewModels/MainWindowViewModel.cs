@@ -36,7 +36,7 @@ namespace HashDog.ViewModels
         {
             if (value == 0)
             {
-                File = new ObservableCollection<FileEntry>();
+                //File = new ObservableCollection<FileEntry>();
                 Archive = new ObservableCollection<ArchiveEntry>();
             }
         }
@@ -110,9 +110,10 @@ namespace HashDog.ViewModels
         {
             _instance = Service.Instance;
 
+            IsHashDogEnabled = Service.IsSchedulerRunning();
+
             LoadOutpost();
             LoadMismatchArchive();
-
         }
 
         public void RefreshDataGrids()

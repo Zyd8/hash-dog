@@ -16,7 +16,7 @@ public partial class MainWindowView : Window
 
         this.DataContext = new MainWindowViewModel();      
     
-        this.Closed += OnWindowClosed;
+        //this.Closed += OnWindowClosed;
     }
 
 
