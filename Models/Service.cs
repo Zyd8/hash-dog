@@ -63,18 +63,27 @@ namespace HashDog.Models
             }
         }
 
-        private void DeleteOutpost(OutpostEntry outpost)
+        public void RemoveOutpost(OutpostEntry outpost)
         {
             using (var context = new Database())
             {
                 var outpostToDelete = context.Outposts.FirstOrDefault(o => o.Id == outpost.Id);
                 if (outpostToDelete != null)
                 {
+
+                    var schedulerToRemove = _schedulers.FirstOrDefault(s => s.Outpost.Id == outpost.Id);
+                    if (schedulerToRemove != null)
+                    {
+                        schedulerToRemove.Dispose();
+                        _schedulers.Remove(schedulerToRemove);
+                    }
+
                     context.Outposts.Remove(outpostToDelete);
                     context.SaveChanges();
                 }
             }
         }
+
 
         public List<OutpostEntry> ReadOutpost()
         {
@@ -87,7 +96,7 @@ namespace HashDog.Models
                         CheckPath = o.CheckPath,
                         HashType = o.HashType,                                           
                         CheckFreqHours= o.CheckFreqHours,
-                        LastChecked = DateTime.Now,
+                        LastChecked = o.LastChecked,
                         Files = o.Files
                     })
                     .ToList();

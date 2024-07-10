@@ -223,6 +223,12 @@ namespace HashDog.ViewModels
     
             RefreshDataGrids();
         }
+
+        public void RemoveOutpost(OutpostEntry outpost)
+        {
+            _instance.RemoveOutpost(outpost);
+            RefreshDataGrids();
+        }
     }
 }
 

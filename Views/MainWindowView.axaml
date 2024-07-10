@@ -14,6 +14,7 @@
 	<Design.DataContext>
 		<vm:MainWindowViewModel/>
 	</Design.DataContext>
+	
 
 	<Grid Margin="0,20,0,20">
 
@@ -36,11 +37,6 @@
 			<Button Content="Refresh"
 					Click="RefreshDataGrids_Click"
 					Margin="20">
-			</Button>
-
-			<Button Content="Delete Outpost"
-					HorizontalAlignment="Center"
-					Click="DeleteOutpost_Click">
 			</Button>
 			
 		</StackPanel>
@@ -89,25 +85,42 @@
 		
 			
 			<TabControl Grid.Column="0" Grid.Row="0" SelectedIndex="{Binding TopSelectedTabIndex}">
-				
-				<TabItem Header="Outpost" Margin="0,20,0,20">
-					<DataGrid ItemsSource="{Binding Outpost}"
-							  CanUserReorderColumns="True"
-							  CanUserResizeColumns="True"
-							  AutoGenerateColumns="False"
-							  GridLinesVisibility="All"
-							  IsReadOnly="True"
-							  SelectionChanged="DataGrid_SelectionOutpost">
 
-						<DataGrid.Columns>
-							<DataGridTextColumn Header="Id" Binding="{Binding Id}" />
-							<DataGridTextColumn Header="Outpost Path" Binding="{Binding CheckPath}" Width="400"/>
-							<DataGridTextColumn Header="Hash Algorithm" Binding="{Binding HashType}"/>
-							<DataGridTextColumn Header="Check Frequency (hours)" Binding="{Binding CheckFreqHours}" />
-							<DataGridTextColumn Header="Last Checked" Binding="{Binding LastChecked}" />
-						</DataGrid.Columns>
-					
-					</DataGrid>
+				<TabItem Header="Outpost" Margin="0,20,0,20">
+					<ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+						<ListBox ItemsSource="{Binding Outpost}" SelectionMode="Single">
+							<ListBox.ItemsPanel>
+								<ItemsPanelTemplate>
+									<StackPanel Orientation="Horizontal"/>
+								</ItemsPanelTemplate>
+							</ListBox.ItemsPanel>
+							<ListBox.ItemTemplate>
+								<DataTemplate>
+									<Border BorderBrush="Gray" BorderThickness="1" Margin="5" Padding="5">
+										<StackPanel Orientation="Vertical">
+											<TextBlock Text="{Binding Id}" />
+											<StackPanel Orientation="Horizontal">
+												<Button Content="View"
+														Click="ViewOutpost_Click"
+														DataContext="{Binding}"
+														Margin="5"
+														HorizontalAlignment="Center"/>
+												<Button Content="Delete"
+														Click="DeleteOutpost_Click"
+														DataContext="{Binding}"
+														Margin="5"
+														HorizontalAlignment="Center"/>
+											</StackPanel>
+											<TextBlock Text="{Binding CheckPath}" Width="400"/>
+											<TextBlock Text="{Binding HashType}"/>
+											<TextBlock Text="{Binding CheckFreqHours}"/>
+											<TextBlock Text="{Binding LastChecked}"/>
+										</StackPanel>
+									</Border>
+								</DataTemplate>
+							</ListBox.ItemTemplate>
+						</ListBox>
+					</ScrollViewer>
 				</TabItem>
 
 			

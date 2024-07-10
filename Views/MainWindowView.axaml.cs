@@ -69,6 +69,29 @@ public partial class MainWindowView : Window
         }              
     }
 
+    public void ViewOutpost_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button btn && btn.DataContext is OutpostEntry outpost)
+        {
+            if (DataContext is MainWindowViewModel viewModel)
+            {
+                viewModel.SelectedOutpost = outpost;
+            }
+        }
+    }
+
+    public void DeleteOutpost_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button btn && btn.DataContext is OutpostEntry outpost)
+        {
+            if (DataContext is MainWindowViewModel viewModel)
+            {
+                Log.Information(outpost.CheckPath);
+                viewModel.RemoveOutpost(outpost);
+            }
+        }
+    }
+
     private void DataGrid_SelectionMismatchArchive(object sender, SelectionChangedEventArgs e)
     {
         if (sender is DataGrid dataGrid && dataGrid.SelectedItem is MismatchArchiveEntry selectedMismatchArchive)
