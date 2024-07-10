@@ -37,27 +37,30 @@
 					Click="RefreshDataGrids_Click"
 					Margin="20">
 			</Button>
+
+			<Button Content="Delete Outpost"
+					HorizontalAlignment="Center"
+					Click="DeleteOutpost_Click">
+			</Button>
 			
 		</StackPanel>
 
 		<StackPanel Grid.Column="0" Grid.Row="1" Margin="10" HorizontalAlignment="Center" VerticalAlignment="Center">
 
-			<!-- Select Folder Button and TextBox -->
-			<StackPanel Orientation="Vertical" Margin="10">
+			<StackPanel Orientation="Vertical" Margin="0, 20">
 				<Button Content="Select Folder" Click="SelectFolder_Click" Margin="0,0,0,10"/>
-				<TextBox Padding="10" IsReadOnly="True" Text="{Binding FolderPath_Text}" IsEnabled="True" ToolTip.Tip="{Binding FolderPath_Text}" Focusable="False"/>
+				<TextBox IsVisible="{Binding FolderPath_IsVisible}" Width="250" Padding="10" IsReadOnly="True" Text="{Binding FolderPath_Text}" IsEnabled="True" ToolTip.Tip="{Binding FolderPath_Text}" Focusable="False"/>
 			</StackPanel>
 
-			<!-- Check Frequency -->
-			<StackPanel Orientation="Horizontal" Margin="10">
-				<TextBlock VerticalAlignment="Center" Margin="0,0,10,0">Check Frequency (Hours):</TextBlock>
-				<NumericUpDown Value="0" Increment="1" FormatString="0" Minimum="0"/>
+			
+			<StackPanel Orientation="Vertical" Margin="0, 20">
+				<TextBlock VerticalAlignment="Center" Margin="0,0,10,10">Check Frequency (Hours):</TextBlock>
+				<NumericUpDown Width="250" Value="{Binding CheckFreqHours_Value}" Increment="1" FormatString="0" Minimum="0" Maximum="100000"/>
 			</StackPanel>
 
-			<!-- Hash Algorithm -->
-			<StackPanel Orientation="Horizontal" Margin="10">
-				<TextBlock VerticalAlignment="Center" Margin="0,0,10,0">Hash Algorithm:</TextBlock>
-				<ComboBox Width="100" SelectedIndex="0">
+			<StackPanel Orientation="Horizontal" Margin="0, 20">
+				<TextBlock VerticalAlignment="Center" Margin="0,0,10,10">Hash Algorithm:</TextBlock>
+				<ComboBox Width="100" SelectedIndex="{Binding HashType_Index}">
 					<ComboBoxItem Content="MD5"/>
 					<ComboBoxItem Content="SHA1"/>
 					<ComboBoxItem Content="SHA256"/>
@@ -65,10 +68,10 @@
 				</ComboBox>
 			</StackPanel>
 
-			<!-- Add Outpost Button -->
 			<Button Content="Add Outpost"
+					HorizontalAlignment="Left"
 					Click="AddOutpost_Click"
-					Margin="10,10,10,20"/>
+					/>
 		</StackPanel>
 
 

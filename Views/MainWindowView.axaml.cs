@@ -53,18 +53,6 @@ public partial class MainWindowView : Window
         }
     }
 
-    private void DataGrid_SelectionMismatchArchive(object sender, SelectionChangedEventArgs e)
-    {
-        if (sender is DataGrid dataGrid && dataGrid.SelectedItem is MismatchArchiveEntry selectedMismatchArchive)
-        {
-            if (DataContext is MainWindowViewModel viewModel)
-            {
-                viewModel.SelectedMismatchArchive = selectedMismatchArchive;
-                Log.Information("SELECT MISMATCHARCHIVE");
-            }
-        }
-    }
-
     public void RefreshDataGrids_Click(object sender, RoutedEventArgs args)
     {
         if (DataContext is MainWindowViewModel viewModel)
@@ -77,8 +65,20 @@ public partial class MainWindowView : Window
     {
         if (DataContext is MainWindowViewModel viewModel)
         {
-            
+            viewModel.AddOutpost();
         }              
+    }
+
+    private void DataGrid_SelectionMismatchArchive(object sender, SelectionChangedEventArgs e)
+    {
+        if (sender is DataGrid dataGrid && dataGrid.SelectedItem is MismatchArchiveEntry selectedMismatchArchive)
+        {
+            if (DataContext is MainWindowViewModel viewModel)
+            {
+                viewModel.SelectedMismatchArchive = selectedMismatchArchive;
+                Log.Information("SELECT MISMATCHARCHIVE");
+            }
+        }
     }
 
     private async void SelectFolder_Click(object sender, RoutedEventArgs args)

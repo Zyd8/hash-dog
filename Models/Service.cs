@@ -37,7 +37,7 @@ namespace HashDog.Models
             return Scheduler.IsRunning;
         }
 
-        public void CreateOutpost(string outpostPath)
+        public void CreateOutpost(string outpostPath, HashType hashType, int checkFreqHours)
         {
             using (var context = new Database())
             { 
@@ -52,12 +52,25 @@ namespace HashDog.Models
                 var newOutpostEntry = new OutpostEntry
                 {
                     CheckPath = outpostPath,
-                    HashType = HashUtils.ParseHashTypeToString(HashType.MD5),
-                    CheckFreqHours = 10,
+                    HashType = HashUtils.ParseHashTypeToString(hashType),
+                    CheckFreqHours = checkFreqHours,
                     LastChecked = DateTime.Now
                 };
                 context.Outposts.Add(newOutpostEntry);
                 context.SaveChanges();
+            }
+        }
+
+        private void DeleteOutpost(OutpostEntry outpost)
+        {
+            using (var context = new Database())
+            {
+                var outpostToDelete = context.Outposts.FirstOrDefault(o => o.Id == outpost.Id);
+                if (outpostToDelete != null)
+                {
+                    context.Outposts.Remove(outpostToDelete);
+                    context.SaveChanges();
+                }
             }
         }
 
@@ -245,16 +258,6 @@ namespace HashDog.Models
                     _schedulers.Add(scheduler);
                 }
             }
-        }
-
-        public string GetNewOutpostPath()
-        {
-            string path = @"C:\Users\Zyd\testing\outpost1";
-            if (path != null)
-            {
-                return path;
-            }
-            throw new Exception();
         }
 
         public void Dispose()

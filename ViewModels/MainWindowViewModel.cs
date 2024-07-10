@@ -107,7 +107,30 @@ namespace HashDog.ViewModels
         }
 
         [ObservableProperty]
-        private string _folderPath_Text = "...";
+        private string _folderPath_Text = "";
+        partial void OnFolderPath_TextChanged(string value)
+        {
+            if (value != string.Empty)
+            {
+                FolderPath_IsVisible = true;
+            }
+        }
+
+        [ObservableProperty]
+        private bool _folderPath_IsVisible;
+
+        [ObservableProperty]
+        private int? _checkFreqHours_Value = 0;
+        partial void OnCheckFreqHours_ValueChanged(int? value)
+        {
+            if (value > 0 || value < 100000)
+            {
+                CheckFreqHours_Value = value;
+            }
+        }
+
+        [ObservableProperty]
+        private int _hashType_Index = 0;
 
 
         public MainWindowViewModel()
@@ -166,11 +189,38 @@ namespace HashDog.ViewModels
             Archive = new ObservableCollection<ArchiveEntry>(_instance.ReadOutpostFileArchive(mismatchArchive.OutpostEntryId, mismatchArchive.FileEntryId));
         }
 
-        public void OnAddOutpostClick()
+        public void AddOutpost()
         {
-            _instance.CreateOutpost(_instance.GetNewOutpostPath());
 
-            _instance.CreateOutpost(@"C:\Users\Zyd\testing\outpost2");
+            if (CheckFreqHours_Value == null || CheckFreqHours_Value == 0)
+            {
+                return;
+            }
+
+            if (FolderPath_Text == null || FolderPath_Text == String.Empty)
+            { 
+                return;
+            }
+
+            int checkFreqHours_Value = CheckFreqHours_Value!.Value;
+
+            if (HashType_Index == 0)
+            {
+                _instance.CreateOutpost(FolderPath_Text, HashType.MD5, checkFreqHours_Value);
+            }
+            else if (HashType_Index == 1)
+            {
+                _instance.CreateOutpost(FolderPath_Text, HashType.SHA1, checkFreqHours_Value);
+            }
+            else if (HashType_Index == 2)
+            {
+                _instance.CreateOutpost(FolderPath_Text, HashType.SHA256, checkFreqHours_Value);
+            }
+            else if (HashType_Index == 3)
+            {
+                _instance.CreateOutpost(FolderPath_Text, HashType.SHA512, checkFreqHours_Value);
+            }
+            
         }
     }
 }
