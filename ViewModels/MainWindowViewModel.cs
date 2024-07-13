@@ -38,7 +38,7 @@ namespace HashDog.ViewModels
             if (value == 0)
             {
                 //File = new ObservableCollection<FileEntry>();
-                Archive = new ObservableCollection<ArchiveEntry>();
+                //Archive = new ObservableCollection<ArchiveEntry>();
             }
         }
 
@@ -70,14 +70,17 @@ namespace HashDog.ViewModels
 
 
         [ObservableProperty]
-        private OutpostEntry _selectedOutpost;
+        private OutpostEntry? _selectedOutpost;
 
-        partial void OnSelectedOutpostChanged(OutpostEntry value)
+        partial void OnSelectedOutpostChanged(OutpostEntry? value)
         {
             if (value != null)
             {
                 LoadOutpostFile(value);
                 Log.Information($"Selected Outpost Id: {value.Id}");
+
+                Archive = new ObservableCollection<ArchiveEntry>();
+
                 TopSelectedTabIndex = 1;
             }
         }
@@ -96,12 +99,18 @@ namespace HashDog.ViewModels
         }
 
         [ObservableProperty]
-        private MismatchArchiveEntry _selectedMismatchArchive;
-        partial void OnSelectedMismatchArchiveChanged(MismatchArchiveEntry value)
+        private MismatchArchiveEntry? _selectedMismatchArchive;
+        partial void OnSelectedMismatchArchiveChanged(MismatchArchiveEntry? value)
         {
             if (value != null)
             {
                 LoadArchiveViaMismatchArchive(value);
+
+                SelectedOutpost = null;
+                //SelectedMismatchArchive = null;
+                
+                File = new ObservableCollection<FileEntry>();  
+
                 TopSelectedTabIndex = 2;
             }
         }
@@ -144,20 +153,17 @@ namespace HashDog.ViewModels
         }
 
         public void RefreshDataGrids()
-        {
-            if (IsHashDogEnabled)
+        {             
+            LoadOutpost();
+            LoadMismatchArchive();
+            if (SelectedOutpost != null)
             {
-                LoadOutpost();
-                LoadMismatchArchive();
-                if (SelectedOutpost != null)
-                {
-                    LoadOutpostFile(SelectedOutpost);
-                }
-                if (SelectedOutpostFile != null)
-                {
-                    LoadOutpostFileArchive(SelectedOutpostFile);
-                }
+                LoadOutpostFile(SelectedOutpost);
             }
+            if (SelectedOutpostFile != null)
+            {
+                LoadOutpostFileArchive(SelectedOutpostFile);
+            }           
         }
 
 
