@@ -32,15 +32,13 @@ namespace HashDog.ViewModels
         private ObservableCollection<MismatchArchiveEntry> _mismatchArchive;
 
         [ObservableProperty]
+        private ObservableCollection<ArchiveEntry> _archiveMismatchRelevant;
+
+        [ObservableProperty]
         private int _topSelectedTabIndex;
-        partial void OnTopSelectedTabIndexChanged(int value)
-        {
-            if (value == 0)
-            {
-                //File = new ObservableCollection<FileEntry>();
-                //Archive = new ObservableCollection<ArchiveEntry>();
-            }
-        }
+
+        [ObservableProperty]
+        private int _bottomSelectedTabIndex;
 
         [ObservableProperty]
         private bool _isHashDogEnabled;
@@ -70,9 +68,9 @@ namespace HashDog.ViewModels
 
 
         [ObservableProperty]
-        private OutpostEntry? _selectedOutpost;
+        private OutpostEntry _selectedOutpost;
 
-        partial void OnSelectedOutpostChanged(OutpostEntry? value)
+        partial void OnSelectedOutpostChanged(OutpostEntry value)
         {
             if (value != null)
             {
@@ -99,47 +97,16 @@ namespace HashDog.ViewModels
         }
 
         [ObservableProperty]
-        private MismatchArchiveEntry? _selectedMismatchArchive;
-        partial void OnSelectedMismatchArchiveChanged(MismatchArchiveEntry? value)
+        private MismatchArchiveEntry _selectedMismatchArchive;
+        partial void OnSelectedMismatchArchiveChanged(MismatchArchiveEntry value)
         {
             if (value != null)
             {
-                LoadArchiveViaMismatchArchive(value);
+                LoadArchiveMismatchRelevant(value);
 
-                SelectedOutpost = null;
-                //SelectedMismatchArchive = null;
-                
-                File = new ObservableCollection<FileEntry>();  
-
-                TopSelectedTabIndex = 2;
+                BottomSelectedTabIndex = 1;
             }
         }
-
-        [ObservableProperty]
-        private string _folderPath_Text = "";
-        partial void OnFolderPath_TextChanged(string value)
-        {
-            if (value != string.Empty)
-            {
-                FolderPath_IsVisible = true;
-            }
-        }
-
-        [ObservableProperty]
-        private bool _folderPath_IsVisible;
-
-        [ObservableProperty]
-        private int? _checkFreqHours_Value = 0;
-        partial void OnCheckFreqHours_ValueChanged(int? value)
-        {
-            if (value > 0 || value < 100000)
-            {
-                CheckFreqHours_Value = value;
-            }
-        }
-
-        [ObservableProperty]
-        private int _hashType_Index = 0;
 
 
         public MainWindowViewModel()
@@ -190,44 +157,9 @@ namespace HashDog.ViewModels
             Archive = new ObservableCollection<ArchiveEntry>(_instance.ReadOutpostFileArchive(SelectedOutpost.Id, file.Id));
         }
 
-        public void LoadArchiveViaMismatchArchive(MismatchArchiveEntry mismatchArchive)
+        public void LoadArchiveMismatchRelevant(MismatchArchiveEntry mismatchArchive)
         {
-            Archive = new ObservableCollection<ArchiveEntry>(_instance.ReadOutpostFileArchive(mismatchArchive.OutpostEntryId, mismatchArchive.FileEntryId));
-        }
-
-        public void AddOutpost()
-        {
-
-            if (CheckFreqHours_Value == null || CheckFreqHours_Value == 0)
-            {
-                return;
-            }
-
-            if (FolderPath_Text == null || FolderPath_Text == String.Empty)
-            { 
-                return;
-            }
-
-            int checkFreqHours_Value = CheckFreqHours_Value!.Value;
-
-            if (HashType_Index == 0)
-            {
-                _instance.CreateOutpost(FolderPath_Text, HashType.MD5, checkFreqHours_Value);
-            }
-            else if (HashType_Index == 1)
-            {
-                _instance.CreateOutpost(FolderPath_Text, HashType.SHA1, checkFreqHours_Value);
-            }
-            else if (HashType_Index == 2)
-            {
-                _instance.CreateOutpost(FolderPath_Text, HashType.SHA256, checkFreqHours_Value);
-            }
-            else if (HashType_Index == 3)
-            {
-                _instance.CreateOutpost(FolderPath_Text, HashType.SHA512, checkFreqHours_Value);
-            }
-    
-            RefreshDataGrids();
+            ArchiveMismatchRelevant = new ObservableCollection<ArchiveEntry>(_instance.ReadOutpostFileArchive(mismatchArchive.OutpostEntryId, mismatchArchive.FileEntryId));
         }
 
         public void RemoveOutpost(OutpostEntry outpost)

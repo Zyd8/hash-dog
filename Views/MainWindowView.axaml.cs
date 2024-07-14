@@ -61,14 +61,6 @@ public partial class MainWindowView : Window
         }              
     }
 
-    public void AddOutpost_Click(object sender, RoutedEventArgs args)
-    {
-        if (DataContext is MainWindowViewModel viewModel)
-        {
-            viewModel.AddOutpost();
-        }              
-    }
-
     public void ViewOutpost_Click(object sender, RoutedEventArgs e)
     {
         if (sender is Button btn && btn.DataContext is OutpostEntry outpost)
@@ -104,38 +96,15 @@ public partial class MainWindowView : Window
         }
     }
 
-    private async void SelectFolder_Click(object sender, RoutedEventArgs args)
+    public void AddOutpost_Click(object sender, RoutedEventArgs args)
     {
-        try
+        if (DataContext is MainWindowViewModel viewModel)
         {
-            var topLevel = TopLevel.GetTopLevel(this);
-
-            var folder = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
-            {
-                Title = "Select the Folder to be Monitored",
-                AllowMultiple = false,
-            });
-
-            if (folder != null && folder.Count > 0)
-            {
-                if (DataContext is MainWindowViewModel viewModel)
-                {
-                    
-                    var selectedFolder = folder[0];
-                    viewModel.FolderPath_Text = selectedFolder.Path.LocalPath;
-                    Log.Information($"Selected Folder Path: {selectedFolder.Path.LocalPath}");
-                }
-                
-            }
-            else
-            {
-                Log.Information("Folder selection canceled or no folder selected.");
-            }
+            AddOutpostView addOutpostView = new AddOutpostView(viewModel);
+            addOutpostView.Show();
         }
-        catch (Exception ex)
-        {
-            Log.Error($"Error selecting folder: {ex.Message}");
-        }
+
     }
+
 
 }

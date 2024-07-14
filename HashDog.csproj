@@ -36,5 +36,8 @@
     <Compile Update="Views\MainWindowView.axaml.cs">
       <DependentUpon>MainWindowView.axaml</DependentUpon>
     </Compile>
+    <Compile Update="Views\AddOutpostView.axaml.cs">
+      <DependentUpon>AddOutpostView.axaml</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>
