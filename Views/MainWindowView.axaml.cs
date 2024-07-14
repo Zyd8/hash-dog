@@ -5,28 +5,57 @@ using Serilog;
 using HashDog.Models;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
-
+using Avalonia.Controls.Notifications;
+using System.ComponentModel;
 
 namespace HashDog.Views;
 
 public partial class MainWindowView : Window
 {
+    private TrayIcon _trayIcon;
+    private WindowNotificationManager _notificationManager;
     public MainWindowView()
     {
         InitializeComponent();
 
-        this.DataContext = new MainWindowViewModel();      
-    
-        //this.Closed += OnWindowClosed;
+        this.DataContext = new MainWindowViewModel();
+
+        _trayIcon = new TrayIcon
+        {
+            Icon = new WindowIcon("dog.png"),
+            ToolTipText = "HashDog",
+            IsVisible = true
+        };
+
+        _trayIcon.Clicked += (sender, e) =>
+        {
+            this.Show();
+            this.WindowState = WindowState.Normal;
+        };
+
+        _notificationManager = new WindowNotificationManager(this)
+        {
+            Position = NotificationPosition.BottomRight
+        };
+
+        this.Closing += OnClosing;
     }
 
-
-    // for testing purposes only
-    private void OnWindowClosed(object? sender, EventArgs e)
+    private void OnClosing(object? sender, CancelEventArgs e)
     {
-        var _instance = Service.Instance;
-        _instance.Dispose(); 
-        Log.Information("Service Disposed");
+        if (DataContext is MainWindowViewModel viewModel)
+        {
+            if (viewModel.IsHashDogEnabled)
+            {
+                e.Cancel = true;
+                this.Hide();
+            }
+            else
+            {
+                _trayIcon.IsVisible = false;
+                _trayIcon.Dispose();
+            }
+        }
     }
 
     private void DataGrid_SelectionOutpost(object sender, SelectionChangedEventArgs e)
@@ -105,6 +134,4 @@ public partial class MainWindowView : Window
         }
 
     }
-
-
 }
