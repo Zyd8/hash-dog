@@ -60,6 +60,8 @@ namespace HashDog.Models
                 context.SaveChanges();
 
                 Run(newOutpostEntry);
+                Scheduler scheduler = new Scheduler(newOutpostEntry, this);
+                _schedulers.Add(scheduler);
             }
         }
 
