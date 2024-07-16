@@ -1,0 +1,55 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:HashDog.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="HashDog.AddOutpostView"
+        Title="Add an Outpost"
+        x:DataType="vm:AddOutpostViewModel"
+		Width="400"
+		Height="400"
+	  >
+
+	<Design.DataContext>
+		<vm:AddOutpostViewModel/>
+	</Design.DataContext>
+
+     <StackPanel Margin="20" VerticalAlignment="Center">
+		 
+        <Border Background="#f8d7da"
+                CornerRadius="5"
+                Padding="10"
+                Margin="5"
+                IsVisible="{Binding Alert_IsVisible}">
+            <TextBlock Text="{Binding Alert_Text}"
+                        Foreground="#721c24"                  
+                        HorizontalAlignment="Center"/>
+        </Border>
+		 
+		<StackPanel Margin="5">
+			<Button Content="Select Folder" Click="SelectFolder_Click" Margin="0,10"/>
+            <TextBox IsVisible="{Binding FolderPath_IsVisible}" IsReadOnly="True" Text="{Binding FolderPath_Text}" IsEnabled="True" ToolTip.Tip="{Binding FolderPath_Text}" Focusable="False" Margin="0,0,0,20"/>
+		</StackPanel>
+	
+		 <StackPanel Margin="5">
+			 <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5">Check Frequency (Hours):</TextBlock>
+             <NumericUpDown Value="{Binding CheckFreqHours_Value}" Increment="1" FormatString="0" Minimum="0" Maximum="100000" Margin="5"/>    
+		</StackPanel>
+       
+		<StackPanel Margin="5">
+            <TextBlock VerticalAlignment="Center" Margin="5">Hash Algorithm:</TextBlock>
+            <ComboBox SelectedIndex="{Binding HashType_Index}" Margin="5">
+                <ComboBoxItem Content="MD5"/>
+                <ComboBoxItem Content="SHA1"/>
+                <ComboBoxItem Content="SHA256"/>
+                <ComboBoxItem Content="SHA512"/>
+            </ComboBox>
+		</StackPanel>
+		
+        <Button Content="Confirm" HorizontalAlignment="Right" Click="AddOutpostConfirm_Click"/>
+	 
+    </StackPanel>
+
+
+</Window>
