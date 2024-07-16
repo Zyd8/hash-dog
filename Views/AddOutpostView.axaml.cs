@@ -56,8 +56,7 @@ public partial class AddOutpostView : Window
     {
         if (DataContext is AddOutpostViewModel viewModel)
         {
-            viewModel.AddOutpost();
-            this.Close();
+            viewModel.AddOutpost(this);
         }
     }
 

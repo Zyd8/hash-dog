@@ -23,7 +23,6 @@ namespace HashDog.Models
             InitDatabase();                 
         }
 
-        // temporary for testing only, should use migrations
         public static void InitDatabase()
         {
             using (var context = new Database())
@@ -37,16 +36,26 @@ namespace HashDog.Models
             return Scheduler.IsRunning;
         }
 
-        public void CreateOutpost(string outpostPath, HashType hashType, int checkFreqHours)
+        public bool OutpostAlreadyExist(string outpostPath)
         {
             using (var context = new Database())
-            { 
-                // Guards for conflicting outpost checking path
+            {             
                 var existingOutpost = context.Outposts.FirstOrDefault(o => o.CheckPath == outpostPath);
                 if (existingOutpost != null)
                 {
                     Log.Information($"Outpost with CheckPath '{outpostPath}' already exists.");
-                    return; 
+                    return true;
+                }
+                return false;
+            }
+        }
+        public void CreateOutpost(string outpostPath, HashType hashType, int checkFreqHours)
+        {
+            using (var context = new Database())
+            { 
+                if (OutpostAlreadyExist(outpostPath))
+                {
+                    return;
                 }
 
                 var newOutpostEntry = new OutpostEntry
@@ -60,8 +69,12 @@ namespace HashDog.Models
                 context.SaveChanges();
 
                 Run(newOutpostEntry);
-                Scheduler scheduler = new Scheduler(newOutpostEntry, this);
-                _schedulers.Add(scheduler);
+
+                if (Scheduler.IsRunning)
+                {
+                    Scheduler newScheduler = new Scheduler(newOutpostEntry, this);
+                    _schedulers.Add(newScheduler);
+                }
             }
         }
 
@@ -260,7 +273,6 @@ namespace HashDog.Models
             }
         }
 
-
         public void SetScheduleRunTimer()
         {
             using (var context = new Database())
@@ -279,6 +291,10 @@ namespace HashDog.Models
             {
                 scheduler.Dispose();
             }
+
+            // avoid duplicates when scheduler is toggled multiple times
+            _schedulers = new List<Scheduler>();
+
             Console.WriteLine("Service disposed");
         }
 
@@ -305,9 +321,8 @@ namespace HashDog.Models
         }
 
         private void SetNextRunTimeSchedule()
-        {
-           
-            NextRunTime = Outpost.LastChecked.AddSeconds(Outpost.CheckFreqHours); // Change seconds to hour after testing
+        {     
+            NextRunTime = Outpost.LastChecked.AddSeconds(Outpost.CheckFreqHours); 
 
             TimeSpan interval = NextRunTime - DateTime.Now;
             if (interval < TimeSpan.Zero) interval = TimeSpan.Zero;
@@ -320,14 +335,13 @@ namespace HashDog.Models
             {
                 _timer.Change(interval, Timeout.InfiniteTimeSpan);
             }
-            Log.Information("Changing schedules");
+            Log.Information($"next run time: {NextRunTime}");
         }
 
         private void ScheduleRun(object? state)
         {
             Service.Run(Outpost);
             SetNextRunTimeSchedule();
-
         }
 
         public void Dispose()

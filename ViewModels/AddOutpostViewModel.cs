@@ -40,24 +40,52 @@ namespace HashDog.ViewModels
         [ObservableProperty]
         private int _hashType_Index = 0;
 
+
+        [ObservableProperty]
+        private bool _alert_IsVisible;
+
+        [ObservableProperty]
+        private string _alert_Text;
+
+        partial void OnAlert_TextChanged(string value)
+        {
+            if (value != string.Empty)
+            {
+                Alert_IsVisible = true;
+            }
+        }
+
+
         public AddOutpostViewModel(MainWindowViewModel mainWindowViewModel)
         {
             _instance = Service.Instance;
             _mainWindowViewModel = mainWindowViewModel;
         }
 
-        public void AddOutpost()
-        {
 
-            if (CheckFreqHours_Value == null || CheckFreqHours_Value == 0)
-            {
-                return;
-            }
+        public void AddOutpost(AddOutpostView addOutpostView)
+        {
 
             if (FolderPath_Text == null || FolderPath_Text == String.Empty)
             {
+                Alert_Text = "Please specify the folder";
                 return;
             }
+
+            if (_instance.OutpostAlreadyExist(FolderPath_Text))
+            {
+                Alert_Text = "Outpost Already Exists";
+                return;
+            }
+
+            if (CheckFreqHours_Value == null || CheckFreqHours_Value == 0)
+            {
+                Alert_Text = "Check frequency is not valid";
+                return;
+            }
+
+            // Does not wait for the Service.Run to finish
+            addOutpostView.Close();
 
             int checkFreqHours_Value = CheckFreqHours_Value!.Value;
 
@@ -79,6 +107,8 @@ namespace HashDog.ViewModels
             }
 
             _mainWindowViewModel.RefreshDataGrids();
+            
+
         }
 
 
