@@ -1,5 +1,7 @@
-Finished but not polished
+# HashDog
+https://github.com/user-attachments/assets/f5a0fa85-aefd-4c65-bc2f-d347187f9535
 
+Finished but not polished
 1.) Slightly messy code.
 
 2.) Need to learn asynchronous programming.
