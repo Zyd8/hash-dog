@@ -1,6 +1,8 @@
 # HashDog
 https://github.com/user-attachments/assets/f5a0fa85-aefd-4c65-bc2f-d347187f9535
 
+A GUI tool that periodically checks file hashes of a specified folder to monitor data integrity 
+
 Finished but not polished
 1.) Slightly messy code.
 
